@@ -1,0 +1,61 @@
+@font-face {
+    font-family: 'JoseonGulim';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunGu.woff')
+        format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+    }
+
+    html {
+        background-color: #0a0a0a;
+        /* Safe area insets for notched/cutout phones */
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+            env(safe-area-inset-left);
+    }
+
+    body {
+        background-color: #0a0a0a;
+        color: #e5e5e5;
+        font-family: 'JoseonGulim', ui-monospace, monospace;
+        overscroll-behavior: none;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Remove input spinners */
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #2a2a2a;
+        border-radius: 2px;
+    }
+}
+
+@layer utilities {
+    .pb-safe-bottom {
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+    .pt-safe-top {
+        padding-top: env(safe-area-inset-top);
+    }
+}
