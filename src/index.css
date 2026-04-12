@@ -18,9 +18,6 @@
 
     html {
         background-color: #0a0a0a;
-        /* Safe area insets for notched/cutout phones */
-        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-            env(safe-area-inset-left);
     }
 
     body {
@@ -57,5 +54,9 @@
     }
     .pt-safe-top {
         padding-top: env(safe-area-inset-top);
+    }
+    /* 고정 헤더(safe-area-top + h-14) 아래 콘텐츠 시작점 */
+    .pt-header {
+        padding-top: calc(env(safe-area-inset-top) + 3.5rem);
     }
 }

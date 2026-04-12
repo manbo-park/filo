@@ -20,9 +20,9 @@ export function PageLayout({
     const navigate = useNavigate()
 
     return (
-        <div className="min-h-screen bg-film-bg flex flex-col">
-            {/* Header */}
-            <header className="sticky top-0 z-10 bg-film-bg border-b border-film-border px-4 pt-safe-top">
+        <div className="min-h-screen bg-film-bg">
+            {/* Header — fixed so it stays put in PWA standalone mode */}
+            <header className="fixed top-0 inset-x-0 z-10 bg-film-bg border-b border-film-border px-4 pt-safe-top">
                 <div className="flex items-center justify-between h-14">
                     <div className="flex items-center gap-3">
                         {showBack && (
@@ -52,8 +52,8 @@ export function PageLayout({
                 </div>
             </header>
 
-            {/* Content */}
-            <main className={`flex-1 ${className}`}>{children}</main>
+            {/* Content — pt-header pushes content below the fixed header */}
+            <main className={`pt-header ${className}`}>{children}</main>
         </div>
     )
 }
