@@ -57,6 +57,7 @@ export function RollDetailScreen() {
     const [aperture, setAperture] = useState('')
     const [shutterSpeed, setShutterSpeed] = useState('')
     const [memo, setMemo] = useState('')
+    const [timestamp, setTimestamp] = useState('')
     const [showDeleteRoll, setShowDeleteRoll] = useState(false)
 
     if (!roll) {
@@ -88,21 +89,36 @@ export function RollDetailScreen() {
           ? `${startStr} ~ ${endStr}`
           : startStr
 
+    // ISO → datetime-local 입력값 (YYYY-MM-DDTHH:mm)
+    function toLocalInput(iso: string) {
+        const d = new Date(iso)
+        const pad = (n: number) => String(n).padStart(2, '0')
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+    }
+
     function openEditFrame(frame: Frame) {
         setEditingFrame(frame)
         setLensId(frame.lensId ?? '')
         setAperture(frame.aperture ?? '')
         setShutterSpeed(frame.shutterSpeed ?? '')
         setMemo(frame.memo ?? '')
+        setTimestamp(toLocalInput(frame.timestamp))
     }
+
+    const prevFrameTimestamp = editingFrame
+        ? (roll.frames[editingFrame.frameNumber - 2]?.timestamp ?? null)
+        : null
 
     function saveFrame() {
         if (!editingFrame || !roll) return
+        const newTs = new Date(timestamp).toISOString()
+        if (prevFrameTimestamp && newTs < prevFrameTimestamp) return
         updateFrame(roll.id, editingFrame.id, {
             lensId: lensId || undefined,
             aperture: aperture || undefined,
             shutterSpeed: shutterSpeed || undefined,
             memo: memo || undefined,
+            timestamp: newTs,
         })
         setEditingFrame(null)
     }
@@ -215,6 +231,21 @@ export function RollDetailScreen() {
                 title={`${editingFrame?.frameNumber ?? ''}번 컷`}
             >
                 <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1">
+                        <label className="font-mono text-xs text-film-muted">촬영 시간</label>
+                        <input
+                            type="datetime-local"
+                            value={timestamp}
+                            min={prevFrameTimestamp ? toLocalInput(prevFrameTimestamp) : undefined}
+                            onChange={(e) => setTimestamp(e.target.value)}
+                            className="w-full bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
+                        />
+                        {prevFrameTimestamp && timestamp && new Date(timestamp).toISOString() < prevFrameTimestamp && (
+                            <p className="font-mono text-xs text-film-danger">
+                                이전 컷({toLocalInput(prevFrameTimestamp).replace('T', ' ')})보다 이른 시간은 설정할 수 없습니다.
+                            </p>
+                        )}
+                    </div>
                     <Select
                         label="렌즈"
                         value={lensId}
@@ -244,7 +275,7 @@ export function RollDetailScreen() {
                     />
 
                     <div className="flex gap-3 mt-1">
-                        <Button variant="danger" size="md" onClick={handleDeleteFrame}>
+                        <Button variant="danger" size="md" fullWidth onClick={handleDeleteFrame}>
                             삭제
                         </Button>
                         <Button variant="primary" size="md" fullWidth onClick={saveFrame}>

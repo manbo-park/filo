@@ -22,7 +22,7 @@ interface RollState {
     updateFrame: (
         rollId: string,
         frameId: string,
-        patch: Partial<Pick<Frame, 'lensId' | 'aperture' | 'shutterSpeed' | 'memo'>>
+        patch: Partial<Pick<Frame, 'lensId' | 'aperture' | 'shutterSpeed' | 'memo' | 'timestamp'>>
     ) => void
     deleteFrame: (rollId: string, frameId: string) => void
 
