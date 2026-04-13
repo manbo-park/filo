@@ -57,7 +57,8 @@ export function RollDetailScreen() {
     const [aperture, setAperture] = useState('')
     const [shutterSpeed, setShutterSpeed] = useState('')
     const [memo, setMemo] = useState('')
-    const [timestamp, setTimestamp] = useState('')
+    const [tsDate, setTsDate] = useState('')
+    const [tsTime, setTsTime] = useState('')
     const [showDeleteRoll, setShowDeleteRoll] = useState(false)
 
     if (!roll) {
@@ -89,11 +90,16 @@ export function RollDetailScreen() {
           ? `${startStr} ~ ${endStr}`
           : startStr
 
-    // ISO → datetime-local 입력값 (YYYY-MM-DDTHH:mm)
-    function toLocalInput(iso: string) {
+    function toDateStr(iso: string) {
         const d = new Date(iso)
         const pad = (n: number) => String(n).padStart(2, '0')
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    }
+
+    function toTimeStr(iso: string) {
+        const d = new Date(iso)
+        const pad = (n: number) => String(n).padStart(2, '0')
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
     }
 
     function openEditFrame(frame: Frame) {
@@ -102,23 +108,25 @@ export function RollDetailScreen() {
         setAperture(frame.aperture ?? '')
         setShutterSpeed(frame.shutterSpeed ?? '')
         setMemo(frame.memo ?? '')
-        setTimestamp(toLocalInput(frame.timestamp))
+        setTsDate(toDateStr(frame.timestamp))
+        setTsTime(toTimeStr(frame.timestamp))
     }
 
     const prevFrameTimestamp = editingFrame
         ? (roll.frames[editingFrame.frameNumber - 2]?.timestamp ?? null)
         : null
 
+    const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null
+    const tsError = !!(prevFrameTimestamp && currentTs && currentTs < prevFrameTimestamp)
+
     function saveFrame() {
-        if (!editingFrame || !roll) return
-        const newTs = new Date(timestamp).toISOString()
-        if (prevFrameTimestamp && newTs < prevFrameTimestamp) return
+        if (!editingFrame || !roll || !currentTs || tsError) return
         updateFrame(roll.id, editingFrame.id, {
             lensId: lensId || undefined,
             aperture: aperture || undefined,
             shutterSpeed: shutterSpeed || undefined,
             memo: memo || undefined,
-            timestamp: newTs,
+            timestamp: currentTs,
         })
         setEditingFrame(null)
     }
@@ -233,16 +241,25 @@ export function RollDetailScreen() {
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1">
                         <label className="font-mono text-xs text-film-muted">촬영 시간</label>
-                        <input
-                            type="datetime-local"
-                            value={timestamp}
-                            min={prevFrameTimestamp ? toLocalInput(prevFrameTimestamp) : undefined}
-                            onChange={(e) => setTimestamp(e.target.value)}
-                            className="w-full bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
-                        />
-                        {prevFrameTimestamp && timestamp && new Date(timestamp).toISOString() < prevFrameTimestamp && (
+                        <div className="flex gap-2">
+                            <input
+                                type="date"
+                                value={tsDate}
+                                min={prevFrameTimestamp ? toDateStr(prevFrameTimestamp) : undefined}
+                                onChange={(e) => setTsDate(e.target.value)}
+                                className="flex-1 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
+                            />
+                            <input
+                                type="time"
+                                step="1"
+                                value={tsTime}
+                                onChange={(e) => setTsTime(e.target.value)}
+                                className="w-32 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
+                            />
+                        </div>
+                        {tsError && (
                             <p className="font-mono text-xs text-film-danger">
-                                이전 컷({toLocalInput(prevFrameTimestamp).replace('T', ' ')})보다 이른 시간은 설정할 수 없습니다.
+                                이전 컷({prevFrameTimestamp ? `${toDateStr(prevFrameTimestamp)} ${toTimeStr(prevFrameTimestamp)}` : ''})보다 이른 시간은 설정할 수 없습니다.
                             </p>
                         )}
                     </div>
