@@ -14,12 +14,21 @@ export function RollCard({ roll }: RollCardProps) {
     const film = films.find((f) => f.id === roll.filmId)
     const camera = cameras.find((c) => c.id === roll.cameraId)
 
-    const startDate = new Date(roll.startedAt)
-    const dateStr = startDate.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    })
+    const fmt = (iso: string) =>
+        new Date(iso).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        })
+
+    const startStr = fmt(roll.startedAt)
+    const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null
+
+    const dateStr = roll.status === 'active'
+        ? `${startStr} ~`
+        : endStr && endStr !== startStr
+          ? `${startStr} ~ ${endStr}`
+          : startStr
 
     const progress = roll.frames.length
     const isActive = roll.status === 'active'
