@@ -86,7 +86,7 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
 
             {/* Edit indicator */}
             <div
-                className={`shrink-0 mt-0.5 ${isUntagged ? 'text-film-border' : 'text-film-muted'}`}
+                className="shrink-0 mt-0.5 text-film-muted"
             >
                 <Edit3 size={14} />
             </div>
