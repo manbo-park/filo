@@ -28,6 +28,9 @@ export function FilmListScreen() {
     const [maxFrames, setMaxFrames] = useState('36')
     const [errors, setErrors] = useState<Record<string, string>>({})
 
+    const [showImportSuccess, setShowImportSuccess] = useState(false)
+    const [importError, setImportError] = useState<string | null>(null)
+
     const sortedRolls = [...rolls].sort(
         (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
     )
@@ -68,6 +71,21 @@ export function FilmListScreen() {
         URL.revokeObjectURL(url)
     }
 
+    function parseImportData(json: string): ExportData {
+        const data = JSON.parse(json) as Record<string, unknown>
+        if (data?.version !== 1) throw new Error('지원하지 않는 버전입니다.')
+        const md = data.masterData as Record<string, unknown> | undefined
+        if (
+            !md ||
+            !Array.isArray(md.films) ||
+            !Array.isArray(md.cameras) ||
+            !Array.isArray(md.lenses)
+        )
+            throw new Error('masterData 형식이 올바르지 않습니다.')
+        if (!Array.isArray(data.rolls)) throw new Error('rolls 형식이 올바르지 않습니다.')
+        return data as unknown as ExportData
+    }
+
     function handleImport() {
         const input = document.createElement('input')
         input.type = 'file'
@@ -78,15 +96,17 @@ export function FilmListScreen() {
             const reader = new FileReader()
             reader.onload = (ev) => {
                 try {
-                    const data = JSON.parse(ev.target?.result as string) as ExportData
-                    if (data.version !== 1) throw new Error('Unknown version')
+                    const data = parseImportData(ev.target?.result as string)
                     importMasterData(data.masterData)
                     importRolls(data.rolls, data.activeRollId)
-                    alert('데이터를 성공적으로 가져왔습니다.')
-                } catch {
-                    alert('유효하지 않은 내보내기 파일입니다.')
+                    setShowImportSuccess(true)
+                } catch (err) {
+                    setImportError(
+                        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'
+                    )
                 }
             }
+            reader.onerror = () => setImportError('파일을 읽는 중 오류가 발생했습니다.')
             reader.readAsText(file)
         }
         input.click()
@@ -215,6 +235,43 @@ export function FilmListScreen() {
                             </Button>
                         </>
                     )}
+                </div>
+            </Modal>
+
+            {/* 가져오기 성공 모달 */}
+            <Modal
+                isOpen={showImportSuccess}
+                onClose={() => setShowImportSuccess(false)}
+                title="가져오기 완료"
+            >
+                <div className="flex flex-col gap-4">
+                    <p className="text-film-muted font-mono text-sm">
+                        데이터를 성공적으로 가져왔습니다.
+                    </p>
+                    <Button variant="primary" fullWidth onClick={() => setShowImportSuccess(false)}>
+                        확인
+                    </Button>
+                </div>
+            </Modal>
+
+            {/* 가져오기 실패 모달 */}
+            <Modal
+                isOpen={importError !== null}
+                onClose={() => setImportError(null)}
+                title="가져오기 실패"
+            >
+                <div className="flex flex-col gap-4">
+                    <p className="text-film-muted font-mono text-sm">
+                        파일 형식이 올바르지 않아 가져올 수 없습니다.
+                    </p>
+                    {importError && (
+                        <p className="text-film-danger font-mono text-xs bg-film-surface rounded-lg px-3 py-2">
+                            {importError}
+                        </p>
+                    )}
+                    <Button variant="secondary" fullWidth onClick={() => setImportError(null)}>
+                        닫기
+                    </Button>
                 </div>
             </Modal>
         </PageLayout>
