@@ -36,7 +36,7 @@ export function RollCard({ roll }: RollCardProps) {
                         {isActive && (
                             <span className="inline-flex items-center gap-1 text-film-accent text-xs font-mono">
                                 <span className="w-1.5 h-1.5 rounded-full bg-film-accent animate-pulse" />
-                                활성
+                                촬영 중
                             </span>
                         )}
                         <span className="text-film-muted text-xs font-mono">{dateStr}</span>

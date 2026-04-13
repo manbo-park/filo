@@ -21,7 +21,7 @@ export function ShootingScreen() {
         return (
             <PageLayout title="촬영">
                 <div className="flex flex-col items-center justify-center h-64 gap-4">
-                    <p className="text-film-muted font-mono text-sm">활성 롤이 없습니다.</p>
+                    <p className="text-film-muted font-mono text-sm">촬영 중인 롤이 없습니다.</p>
                     <Button variant="primary" onClick={() => navigate('/rolls', { replace: true })}>
                         롤 목록으로
                     </Button>
@@ -179,8 +179,7 @@ export function ShootingScreen() {
                         onClick={() => setShowFinishConfirm(true)}
                     >
                         <span className="flex items-center justify-center gap-2">
-                            <CheckCircle size={16} />
-                            롤 마무리
+                            <CheckCircle size={16} />롤 마무리
                         </span>
                     </Button>
                 </div>
@@ -213,11 +212,7 @@ export function ShootingScreen() {
                 </div>
             </Modal>
             {/* Lens swap modal */}
-            <Modal
-                isOpen={showLensSwap}
-                onClose={() => setShowLensSwap(false)}
-                title="렌즈 교환"
-            >
+            <Modal isOpen={showLensSwap} onClose={() => setShowLensSwap(false)} title="렌즈 교환">
                 <div className="flex flex-col gap-1">
                     {lenses.length === 0 ? (
                         <p className="text-film-muted font-mono text-sm text-center py-4">
@@ -243,9 +238,7 @@ export function ShootingScreen() {
                                     >
                                         {lens.name}
                                         {isSelected && (
-                                            <span className="ml-2 text-xs text-film-accent">
-                                                ✓
-                                            </span>
+                                            <span className="ml-2 text-xs text-film-accent">✓</span>
                                         )}
                                     </button>
                                 )
