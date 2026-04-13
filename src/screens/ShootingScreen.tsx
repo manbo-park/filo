@@ -9,9 +9,10 @@ import { useMasterDataStore } from '@/store/masterDataStore'
 
 export function ShootingScreen() {
     const navigate = useNavigate()
-    const { rolls, activeRollId, recordFrame, finishRoll, setCurrentLens } = useRollStore()
+    const { rolls, activeRollId, recordFrame, deleteFrame, finishRoll, setCurrentLens } = useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
     const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+    const [showUndoConfirm, setShowUndoConfirm] = useState(false)
     const [showLensSwap, setShowLensSwap] = useState(false)
     const [justRecorded, setJustRecorded] = useState(false)
 
@@ -45,6 +46,12 @@ export function ShootingScreen() {
         recordFrame(activeRoll!.id)
         setJustRecorded(true)
         setTimeout(() => setJustRecorded(false), 600)
+    }
+
+    function handleUndo() {
+        if (frameCount === 0) return
+        const lastFrame = activeRoll!.frames[activeRoll!.frames.length - 1]
+        deleteFrame(activeRoll!.id, lastFrame.id)
     }
 
     function handleFinish() {
@@ -171,16 +178,29 @@ export function ShootingScreen() {
                         </button>
                     )}
 
-                    <Button
-                        variant={isRollFull ? 'primary' : 'ghost'}
-                        size="md"
-                        fullWidth
-                        onClick={() => setShowFinishConfirm(true)}
-                    >
-                        <span className="flex items-center justify-center gap-2">
-                            <CheckCircle size={16} />롤 마무리
-                        </span>
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            variant={isRollFull ? 'primary' : 'ghost'}
+                            size="md"
+                            fullWidth
+                            onClick={() => setShowFinishConfirm(true)}
+                        >
+                            <span className="flex items-center justify-center gap-2">
+                                <CheckCircle size={16} />롤 마무리
+                            </span>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            fullWidth
+                            disabled={frameCount === 0}
+                            onClick={() => setShowUndoConfirm(true)}
+                        >
+                            <span className="flex items-center justify-center gap-1.5">
+                                ↩ 되돌리기
+                            </span>
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -206,6 +226,38 @@ export function ShootingScreen() {
                         </Button>
                         <Button variant="primary" fullWidth onClick={handleFinish}>
                             마무리
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+            {/* Undo confirmation */}
+            <Modal
+                isOpen={showUndoConfirm}
+                onClose={() => setShowUndoConfirm(false)}
+                title="마지막 컷을 되돌릴까요?"
+            >
+                <div className="flex flex-col gap-4">
+                    <p className="text-film-muted font-mono text-sm">
+                        <span className="text-film-text font-bold">{frameCount}</span>번째 컷
+                        기록이 삭제됩니다.
+                    </p>
+                    <div className="flex gap-3">
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => setShowUndoConfirm(false)}
+                        >
+                            취소
+                        </Button>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => {
+                                handleUndo()
+                                setShowUndoConfirm(false)
+                            }}
+                        >
+                            되돌리기
                         </Button>
                     </div>
                 </div>
