@@ -45,12 +45,7 @@ export function SplashScreen() {
     return (
         <div className="fixed inset-0 bg-film-bg flex flex-col items-center justify-center gap-6 animate-fade-in">
             {/* Logo */}
-            <div className="flex flex-col items-center gap-3">
-                <img src="/flog-logo-white-with-shadow.png" alt="flog" className="h-24" />
-                <span className="text-film-muted font-mono text-xs tracking-widest uppercase">
-                    필름 로그북
-                </span>
-            </div>
+            <img src="/flog-logo-white-with-shadow.png" alt="flog" className="h-40" />
 
             {/* Loading indicator */}
             {!rollsHydrated || !masterHydrated ? (
@@ -63,11 +58,7 @@ export function SplashScreen() {
                         />
                     ))}
                 </div>
-            ) : (
-                <div className="w-16 h-0.5 bg-film-border rounded-full mt-4 overflow-hidden">
-                    <div className="h-full bg-film-accent" style={{ width: '100%' }} />
-                </div>
-            )}
+            ) : null}
         </div>
     )
 }
