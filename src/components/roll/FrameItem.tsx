@@ -22,7 +22,6 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
     })
 
     const hasMetadata = frame.lensId || frame.aperture || frame.shutterSpeed || frame.memo
-    const isUntagged = !hasMetadata
 
     return (
         <button
