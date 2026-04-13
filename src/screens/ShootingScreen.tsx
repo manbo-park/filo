@@ -64,6 +64,7 @@ export function ShootingScreen() {
         <PageLayout
             title="촬영"
             showBack
+            noScroll
             onBack={() => navigate('/rolls')}
             rightAction={
                 <button

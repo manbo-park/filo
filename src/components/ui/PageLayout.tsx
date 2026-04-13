@@ -9,6 +9,7 @@ interface PageLayoutProps {
     onBack?: () => void
     rightAction?: ReactNode
     className?: string
+    noScroll?: boolean
 }
 
 export function PageLayout({
@@ -18,11 +19,12 @@ export function PageLayout({
     onBack,
     rightAction,
     className = '',
+    noScroll = false,
 }: PageLayoutProps) {
     const navigate = useNavigate()
 
     return (
-        <div className="min-h-screen bg-film-bg">
+        <div className={`${noScroll ? 'h-screen overflow-hidden' : 'min-h-screen'} bg-film-bg`}>
             {/* Header — fixed so it stays put in PWA standalone mode */}
             <header className="fixed top-0 inset-x-0 z-10 bg-film-bg border-b border-film-border px-4 pt-safe-top">
                 <div className="flex items-center justify-between h-14">
