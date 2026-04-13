@@ -18,6 +18,9 @@ export function SplashScreen() {
         const unsubMaster = useMasterDataStore.persist.onFinishHydration(() =>
             setMasterHydrated(true)
         )
+        // 구독 등록 전에 이미 완료된 경우를 처리
+        if (useRollStore.persist.hasHydrated()) setRollsHydrated(true)
+        if (useMasterDataStore.persist.hasHydrated()) setMasterHydrated(true)
         return () => {
             unsubRolls()
             unsubMaster()
