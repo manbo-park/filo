@@ -46,37 +46,10 @@ export function SplashScreen() {
         <div className="fixed inset-0 bg-film-bg flex flex-col items-center justify-center gap-6 animate-fade-in">
             {/* Logo */}
             <div className="flex flex-col items-center gap-3">
-                <div className="relative w-16 h-16 flex items-center justify-center">
-                    <svg viewBox="0 0 64 64" fill="none" className="w-full h-full">
-                        <rect
-                            x="8"
-                            y="16"
-                            width="48"
-                            height="32"
-                            rx="3"
-                            fill="#1a1a1a"
-                            stroke="#2a2a2a"
-                            strokeWidth="1.5"
-                        />
-                        <rect x="12" y="20" width="6" height="5" rx="1" fill="#0a0a0a" />
-                        <rect x="12" y="29" width="6" height="5" rx="1" fill="#0a0a0a" />
-                        <rect x="12" y="38" width="6" height="5" rx="1" fill="#0a0a0a" />
-                        <rect x="46" y="20" width="6" height="5" rx="1" fill="#0a0a0a" />
-                        <rect x="46" y="29" width="6" height="5" rx="1" fill="#0a0a0a" />
-                        <rect x="46" y="38" width="6" height="5" rx="1" fill="#0a0a0a" />
-                        <rect x="22" y="20" width="20" height="24" rx="1" fill="#d4a853" opacity="0.15" />
-                        <circle cx="32" cy="32" r="4" fill="#d4a853" />
-                    </svg>
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                    <span className="text-film-text font-mono font-bold text-3xl tracking-[0.2em]">
-                        flog
-                    </span>
-                    <span className="text-film-muted font-mono text-xs tracking-widest uppercase">
-                        필름 로그북
-                    </span>
-                </div>
+                <img src="/flog-logo-white-with-shadow.png" alt="flog" className="h-24" />
+                <span className="text-film-muted font-mono text-xs tracking-widest uppercase">
+                    필름 로그북
+                </span>
             </div>
 
             {/* Loading indicator */}

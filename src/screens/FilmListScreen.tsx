@@ -115,7 +115,7 @@ export function FilmListScreen() {
 
     return (
         <PageLayout
-            title="flog"
+            title={<img src="/flog-logo-white-with-shadow.png" alt="flog" className="h-14" />}
             rightAction={
                 <div className="flex items-center gap-1">
                     <button

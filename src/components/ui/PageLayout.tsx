@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Database } from 'lucide-react'
 
 interface PageLayoutProps {
-    title: string
+    title: ReactNode
     children: ReactNode
     showBack?: boolean
     onBack?: () => void
