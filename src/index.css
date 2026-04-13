@@ -63,4 +63,18 @@
     .h-content {
         height: calc(100dvh - env(safe-area-inset-top) - 3.5rem);
     }
+    /* 액센트 그라데이션 배경 */
+    .accent-gradient-bg {
+        background: linear-gradient(135deg, #407c01, #d4a853);
+    }
+    .accent-gradient-bg:hover {
+        background: linear-gradient(135deg, #4d9401, #e0b85e);
+    }
+    /* 그라데이션 테두리 (어두운 배경 + 그라데이션 border) */
+    .accent-gradient-border {
+        border: 2px solid transparent;
+        background:
+            linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+            linear-gradient(135deg, #407c01, #d4a853) border-box;
+    }
 }

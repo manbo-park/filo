@@ -117,7 +117,7 @@ export function ShootingScreen() {
                         </div>
                         <div className="h-1 bg-film-border rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-film-accent transition-all duration-300"
+                                className="h-full accent-gradient-bg transition-all duration-300"
                                 style={{ width: `${progressPct}%` }}
                             />
                         </div>
@@ -159,11 +159,10 @@ export function ShootingScreen() {
                         <button
                             onClick={handleRecord}
                             className={[
-                                'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-all duration-150',
-                                'border-2 active:scale-[0.97]',
+                                'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-all duration-150 active:scale-[0.97]',
                                 justRecorded
-                                    ? 'bg-film-accent text-film-bg border-film-accent scale-[0.97]'
-                                    : 'bg-film-surface text-film-text border-film-accent hover:bg-film-accent/10',
+                                    ? 'accent-gradient-bg text-film-bg'
+                                    : 'accent-gradient-border text-film-text',
                             ]
                                 .filter(Boolean)
                                 .join(' ')}

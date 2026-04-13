@@ -79,7 +79,7 @@ export function RollCard({ roll }: RollCardProps) {
             {/* Progress bar */}
             <div className="mt-3 h-0.5 bg-film-border rounded-full overflow-hidden">
                 <div
-                    className="h-full bg-film-accent transition-all duration-300"
+                    className="h-full accent-gradient-bg transition-all duration-300"
                     style={{ width: `${Math.min((progress / roll.maxFrames) * 100, 100)}%` }}
                 />
             </div>
