@@ -141,7 +141,7 @@ export function RollDetailScreen() {
                                 <>
                                     <span className="w-1.5 h-1.5 rounded-full bg-film-accent animate-pulse" />
                                     <span className="text-film-accent font-mono text-xs uppercase tracking-widest">
-                                        진행 중
+                                        촬영 중
                                     </span>
                                 </>
                             )}
