@@ -112,6 +112,9 @@ export function RollDetailScreen() {
         setTsTime(toTimeStr(frame.timestamp))
     }
 
+    const isLastFrame =
+        !!editingFrame && roll.frames[roll.frames.length - 1]?.id === editingFrame.id
+
     const prevFrameTimestamp = editingFrame
         ? (roll.frames[editingFrame.frameNumber - 2]?.timestamp ?? null)
         : null
@@ -292,7 +295,7 @@ export function RollDetailScreen() {
                     />
 
                     <div className="flex gap-3 mt-1">
-                        <Button variant="danger" size="md" fullWidth onClick={handleDeleteFrame}>
+                        <Button variant="danger" size="md" fullWidth onClick={handleDeleteFrame} disabled={!isLastFrame}>
                             삭제
                         </Button>
                         <Button variant="primary" size="md" fullWidth onClick={saveFrame}>
