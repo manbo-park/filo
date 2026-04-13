@@ -74,11 +74,19 @@ export function RollDetailScreen() {
     const camera = cameras.find((c) => c.id === roll.cameraId)
 
     const isActive = roll.status === 'active'
-    const startDate = new Date(roll.startedAt).toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    })
+    const fmt = (iso: string) =>
+        new Date(iso).toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        })
+    const startStr = fmt(roll.startedAt)
+    const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null
+    const dateStr = isActive
+        ? `${startStr} ~`
+        : endStr && endStr !== startStr
+          ? `${startStr} ~ ${endStr}`
+          : startStr
 
     function openEditFrame(frame: Frame) {
         setEditingFrame(frame)
@@ -143,31 +151,21 @@ export function RollDetailScreen() {
                                 </span>
                             )}
                         </div>
-                        <span className="text-film-muted font-mono text-xs">{startDate}</span>
+                        <span className="text-film-muted font-mono text-xs">{dateStr}</span>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="grid grid-cols-2 gap-3 text-center">
                         <div>
                             <div className="text-film-text font-mono font-bold text-lg">
                                 {roll.frames.length}
                             </div>
-                            <div className="text-film-muted font-mono text-xs">컷</div>
+                            <div className="text-film-muted font-mono text-xs">촬영됨</div>
                         </div>
                         <div>
                             <div className="text-film-text font-mono font-bold text-lg">
                                 {roll.maxFrames}
                             </div>
-                            <div className="text-film-muted font-mono text-xs">최대</div>
-                        </div>
-                        <div>
-                            <div className="text-film-text font-mono font-bold text-lg">
-                                {
-                                    roll.frames.filter(
-                                        (f) => f.aperture || f.shutterSpeed || f.memo
-                                    ).length
-                                }
-                            </div>
-                            <div className="text-film-muted font-mono text-xs">메모됨</div>
+                            <div className="text-film-muted font-mono text-xs">전체</div>
                         </div>
                     </div>
 
@@ -195,9 +193,7 @@ export function RollDetailScreen() {
                 {/* Frames list */}
                 {roll.frames.length === 0 ? (
                     <div className="text-center py-10">
-                        <p className="text-film-border font-mono text-sm">
-                            기록된 컷이 없습니다.
-                        </p>
+                        <p className="text-film-border font-mono text-sm">기록된 컷이 없습니다.</p>
                     </div>
                 ) : (
                     <div className="bg-film-surface border border-film-border rounded-xl px-4">

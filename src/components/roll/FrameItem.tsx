@@ -1,4 +1,4 @@
-import { Aperture, Clock, FileText, Edit3 } from 'lucide-react'
+import { Clock, FileText, Edit3, Search } from 'lucide-react'
 import type { Frame } from '@/types'
 import { useMasterDataStore } from '@/store/masterDataStore'
 
@@ -47,29 +47,33 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
                 </div>
 
                 {hasMetadata ? (
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    <div className="flex flex-col gap-1">
                         {lens && (
                             <div className="flex items-center gap-1 text-film-text text-xs font-mono">
-                                <span className="text-film-muted">lens</span>
+                                <Search size={11} className="text-film-muted shrink-0" />
                                 <span>{lens.name}</span>
                             </div>
                         )}
-                        {frame.aperture && (
-                            <div className="flex items-center gap-1 text-film-text text-xs font-mono">
-                                <Aperture size={11} className="text-film-accent" />
-                                <span>{frame.aperture}</span>
-                            </div>
-                        )}
-                        {frame.shutterSpeed && (
-                            <div className="flex items-center gap-1 text-film-text text-xs font-mono">
-                                <span className="text-film-muted">ss</span>
-                                <span>{frame.shutterSpeed}</span>
+                        {(frame.aperture || frame.shutterSpeed) && (
+                            <div className="flex items-center gap-2 text-film-text text-xs font-mono">
+                                {frame.aperture && (
+                                    <span>
+                                        <span className="text-film-muted">f </span>
+                                        {frame.aperture.replace(/^f\//i, '')}
+                                    </span>
+                                )}
+                                {frame.shutterSpeed && (
+                                    <span>
+                                        <span className="text-film-muted">ss </span>
+                                        {frame.shutterSpeed}
+                                    </span>
+                                )}
                             </div>
                         )}
                         {frame.memo && (
-                            <div className="flex items-center gap-1 text-film-muted text-xs font-mono max-w-full">
-                                <FileText size={11} />
-                                <span className="truncate">{frame.memo}</span>
+                            <div className="flex items-center gap-1 text-film-muted text-xs font-mono">
+                                <FileText size={11} className="shrink-0" />
+                                <span>{frame.memo}</span>
                             </div>
                         )}
                     </div>
