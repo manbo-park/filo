@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Database } from 'lucide-react'
 
@@ -23,8 +23,16 @@ export function PageLayout({
 }: PageLayoutProps) {
     const navigate = useNavigate()
 
+    useEffect(() => {
+        if (!noScroll) return
+        document.body.style.overflow = 'hidden'
+        return () => {
+            document.body.style.overflow = ''
+        }
+    }, [noScroll])
+
     return (
-        <div className={`${noScroll ? 'h-screen overflow-hidden' : 'min-h-screen'} bg-film-bg`}>
+        <div className="min-h-screen bg-film-bg">
             {/* Header — fixed so it stays put in PWA standalone mode */}
             <header className="fixed top-0 inset-x-0 z-10 bg-film-bg border-b border-film-border px-4 pt-safe-top">
                 <div className="flex items-center justify-between h-14">
