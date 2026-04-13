@@ -276,40 +276,46 @@ export function MasterDataScreen() {
                         (films.length === 0 ? (
                             <EmptyState label="등록된 필름이 없습니다" />
                         ) : (
-                            films.map((film) => (
-                                <FilmRow
-                                    key={film.id}
-                                    film={film}
-                                    onUpdate={(p) => updateFilm(film.id, p)}
-                                    onDelete={() => deleteFilm(film.id)}
-                                />
-                            ))
+                            [...films]
+                                .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                                .map((film) => (
+                                    <FilmRow
+                                        key={film.id}
+                                        film={film}
+                                        onUpdate={(p) => updateFilm(film.id, p)}
+                                        onDelete={() => deleteFilm(film.id)}
+                                    />
+                                ))
                         ))}
                     {tab === 'cameras' &&
                         (cameras.length === 0 ? (
                             <EmptyState label="등록된 카메라가 없습니다" />
                         ) : (
-                            cameras.map((cam) => (
-                                <SimpleRow
-                                    key={cam.id}
-                                    item={cam}
-                                    onUpdate={(p) => updateCamera(cam.id, p)}
-                                    onDelete={() => deleteCamera(cam.id)}
-                                />
-                            ))
+                            [...cameras]
+                                .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                                .map((cam) => (
+                                    <SimpleRow
+                                        key={cam.id}
+                                        item={cam}
+                                        onUpdate={(p) => updateCamera(cam.id, p)}
+                                        onDelete={() => deleteCamera(cam.id)}
+                                    />
+                                ))
                         ))}
                     {tab === 'lenses' &&
                         (lenses.length === 0 ? (
                             <EmptyState label="등록된 렌즈가 없습니다" />
                         ) : (
-                            lenses.map((lens) => (
-                                <SimpleRow
-                                    key={lens.id}
-                                    item={lens}
-                                    onUpdate={(p) => updateLens(lens.id, p)}
-                                    onDelete={() => deleteLens(lens.id)}
-                                />
-                            ))
+                            [...lenses]
+                                .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
+                                .map((lens) => (
+                                    <SimpleRow
+                                        key={lens.id}
+                                        item={lens}
+                                        onUpdate={(p) => updateLens(lens.id, p)}
+                                        onDelete={() => deleteLens(lens.id)}
+                                    />
+                                ))
                         ))}
                 </div>
             </div>
