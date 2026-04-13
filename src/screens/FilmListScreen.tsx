@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Upload, Download, Film } from 'lucide-react'
+import { Upload, Download, Film, Trash2, AlertTriangle } from 'lucide-react'
 import { PageLayout } from '@/components/ui/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -19,7 +19,7 @@ const FRAME_COUNT_OPTIONS = [
 
 export function FilmListScreen() {
     const navigate = useNavigate()
-    const { rolls, startRoll, importRolls } = useRollStore()
+    const { rolls, startRoll, importRolls, clearAll: clearRolls } = useRollStore()
     const { films, cameras, importMasterData } = useMasterDataStore()
 
     const [showNewRoll, setShowNewRoll] = useState(false)
@@ -30,6 +30,7 @@ export function FilmListScreen() {
 
     const [showImportSuccess, setShowImportSuccess] = useState(false)
     const [importError, setImportError] = useState<string | null>(null)
+    const [confirmClear, setConfirmClear] = useState(false)
 
     const sortedRolls = [...rolls].sort(
         (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
@@ -122,18 +123,49 @@ export function FilmListScreen() {
                         className="p-2 text-film-muted hover:text-film-text transition-colors"
                         title="가져오기"
                     >
-                        <Upload size={16} />
+                        <Download size={16} />
                     </button>
                     <button
                         onClick={handleExport}
                         className="p-2 text-film-muted hover:text-film-text transition-colors"
                         title="내보내기"
                     >
-                        <Download size={16} />
+                        <Upload size={16} />
+                    </button>
+                    <button
+                        onClick={() => setConfirmClear(true)}
+                        className="p-2 text-film-muted hover:text-film-danger transition-colors"
+                        title="롤 전체 삭제"
+                    >
+                        <Trash2 size={16} />
                     </button>
                 </div>
             }
         >
+            {confirmClear && (
+                <div className="mx-4 mt-4 flex items-center gap-3 bg-film-surface border border-film-danger rounded-xl px-4 py-3">
+                    <AlertTriangle size={16} className="shrink-0 text-film-danger" />
+                    <span className="flex-1 font-mono text-xs text-film-muted">
+                        촬영한 롤을 모두 삭제합니다
+                    </span>
+                    <button
+                        onClick={() => {
+                            clearRolls()
+                            setConfirmClear(false)
+                        }}
+                        className="font-mono text-xs text-film-danger hover:text-red-400 transition-colors px-2 py-1"
+                    >
+                        삭제
+                    </button>
+                    <button
+                        onClick={() => setConfirmClear(false)}
+                        className="font-mono text-xs text-film-muted hover:text-film-text transition-colors px-2 py-1"
+                    >
+                        취소
+                    </button>
+                </div>
+            )}
+
             <div className="px-4 py-4 flex flex-col gap-3">
                 {/* Start New Roll CTA */}
                 <Button

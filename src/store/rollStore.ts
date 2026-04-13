@@ -28,6 +28,9 @@ interface RollState {
 
     // Bulk import (replaces all rolls)
     importRolls: (rolls: Roll[], activeRollId: string | null) => void
+
+    // 전체 삭제
+    clearAll: () => void
 }
 
 export const useRollStore = create<RollState>()(
@@ -123,6 +126,8 @@ export const useRollStore = create<RollState>()(
                 })),
 
             importRolls: (rolls, activeRollId) => set({ rolls, activeRollId }),
+
+            clearAll: () => set({ rolls: [], activeRollId: null }),
         }),
         {
             name: 'flog-rolls',

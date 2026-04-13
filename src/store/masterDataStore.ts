@@ -26,6 +26,9 @@ interface MasterDataState {
 
     // Bulk import (replaces all master data)
     importMasterData: (data: { films: Film[]; cameras: Camera[]; lenses: Lens[] }) => void
+
+    // 전체 삭제
+    clearAll: () => void
 }
 
 export const useMasterDataStore = create<MasterDataState>()(
@@ -56,6 +59,8 @@ export const useMasterDataStore = create<MasterDataState>()(
             deleteLens: (id) => set((s) => ({ lenses: s.lenses.filter((l) => l.id !== id) })),
 
             importMasterData: (data) => set({ ...data }),
+
+            clearAll: () => set({ films: [], cameras: [], lenses: [] }),
         }),
         {
             name: 'flog-master',

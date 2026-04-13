@@ -6,6 +6,7 @@ interface PageLayoutProps {
     title: string
     children: ReactNode
     showBack?: boolean
+    onBack?: () => void
     rightAction?: ReactNode
     className?: string
 }
@@ -14,6 +15,7 @@ export function PageLayout({
     title,
     children,
     showBack,
+    onBack,
     rightAction,
     className = '',
 }: PageLayoutProps) {
@@ -27,7 +29,7 @@ export function PageLayout({
                     <div className="flex items-center gap-3">
                         {showBack && (
                             <button
-                                onClick={() => navigate(-1)}
+                                onClick={() => (onBack ? onBack() : navigate(-1))}
                                 className="text-film-muted hover:text-film-text transition-colors p-1 -ml-1"
                             >
                                 <ArrowLeft size={20} />

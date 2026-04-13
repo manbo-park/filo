@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { PlusCircle, Trash2, Edit3, Check, X } from 'lucide-react'
+import { PlusCircle, Trash2, Edit3, Check, X, AlertTriangle } from 'lucide-react'
 import { PageLayout } from '@/components/ui/PageLayout'
 import { Input } from '@/components/ui/Input'
 import { useMasterDataStore } from '@/store/masterDataStore'
@@ -131,6 +131,7 @@ function SimpleRow({ item, onUpdate, onDelete }: SimpleRowProps) {
 
 export function MasterDataScreen() {
     const [tab, setTab] = useState<Tab>('films')
+    const [confirmClear, setConfirmClear] = useState(false)
     const {
         films,
         cameras,
@@ -144,6 +145,7 @@ export function MasterDataScreen() {
         addLens,
         updateLens,
         deleteLens,
+        clearAll,
     } = useMasterDataStore()
 
     // Add form state
@@ -170,7 +172,19 @@ export function MasterDataScreen() {
     ]
 
     return (
-        <PageLayout title="기본 데이터" showBack>
+        <PageLayout
+            title="기본 데이터"
+            showBack
+            rightAction={
+                <button
+                    onClick={() => setConfirmClear(true)}
+                    className="p-2 text-film-muted hover:text-film-danger transition-colors"
+                    title="전체 삭제"
+                >
+                    <Trash2 size={16} />
+                </button>
+            }
+        >
             {/* Tab bar */}
             <div className="flex border-b border-film-border">
                 {tabs.map(({ key, label, count }) => (
@@ -197,6 +211,30 @@ export function MasterDataScreen() {
                     </button>
                 ))}
             </div>
+
+            {confirmClear && (
+                <div className="mx-4 mt-4 flex items-center gap-3 bg-film-surface border border-film-danger rounded-xl px-4 py-3">
+                    <AlertTriangle size={16} className="shrink-0 text-film-danger" />
+                    <span className="flex-1 font-mono text-xs text-film-muted">
+                        필름·카메라·렌즈를 모두 삭제합니다
+                    </span>
+                    <button
+                        onClick={() => {
+                            clearAll()
+                            setConfirmClear(false)
+                        }}
+                        className="font-mono text-xs text-film-danger hover:text-red-400 transition-colors px-2 py-1"
+                    >
+                        삭제
+                    </button>
+                    <button
+                        onClick={() => setConfirmClear(false)}
+                        className="font-mono text-xs text-film-muted hover:text-film-text transition-colors px-2 py-1"
+                    >
+                        취소
+                    </button>
+                </div>
+            )}
 
             <div className="px-4 py-4">
                 {/* Add new form */}

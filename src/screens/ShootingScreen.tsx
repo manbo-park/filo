@@ -56,6 +56,8 @@ export function ShootingScreen() {
     return (
         <PageLayout
             title="촬영"
+            showBack
+            onBack={() => navigate('/rolls')}
             rightAction={
                 <button
                     onClick={() => navigate(`/rolls/${activeRoll.id}`)}
