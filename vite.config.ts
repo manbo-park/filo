@@ -16,7 +16,7 @@ export default defineConfig({
             includeAssets: ['favicon.ico', 'icons/*.png'],
             manifest: {
                 name: 'Film Logbook',
-                short_name: 'flog',
+                short_name: 'filo',
                 description: 'A film logbook app',
                 theme_color: '#0a0a0a',
                 background_color: '#0a0a0a',

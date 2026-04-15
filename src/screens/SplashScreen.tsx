@@ -45,7 +45,7 @@ export function SplashScreen() {
     return (
         <div className="fixed inset-0 bg-film-bg flex flex-col items-center justify-center gap-6 animate-fade-in">
             {/* Logo */}
-            <img src="/flog-logo-white-with-shadow.png" alt="flog" className="h-40" />
+            <img src="/filo-logo-white-with-shadow.png" alt="filo" className="h-40" />
 
             {/* Loading indicator */}
             {!rollsHydrated || !masterHydrated ? (

@@ -1,5 +1,5 @@
-# flog
+# filo
 
 > A Film Logbook App
 
-https://flog-manbo.vercel.app/
+https://fi-lo.vercel.app/

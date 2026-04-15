@@ -67,7 +67,7 @@ export function FilmListScreen() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `flog-export-${new Date().toISOString().split('T')[0]}.json`
+        a.download = `filo-export-${new Date().toISOString().split('T')[0]}.json`
         a.click()
         URL.revokeObjectURL(url)
     }
@@ -115,7 +115,7 @@ export function FilmListScreen() {
 
     return (
         <PageLayout
-            title={<img src="/flog-logo-white-with-shadow.png" alt="flog" className="h-14" />}
+            title={<img src="/filo-logo-white-with-shadow.png" alt="filo" className="h-14" />}
             rightAction={
                 <div className="flex items-center gap-1">
                     <button

@@ -63,7 +63,7 @@ export const useMasterDataStore = create<MasterDataState>()(
             clearAll: () => set({ films: [], cameras: [], lenses: [] }),
         }),
         {
-            name: 'flog-master',
+            name: 'filo-master',
             storage: createJSONStorage(() => idbStorage),
         }
     )

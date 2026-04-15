@@ -130,7 +130,7 @@ export const useRollStore = create<RollState>()(
             clearAll: () => set({ rolls: [], activeRollId: null }),
         }),
         {
-            name: 'flog-rolls',
+            name: 'filo-rolls',
             storage: createJSONStorage(() => idbStorage),
         }
     )
