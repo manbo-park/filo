@@ -283,18 +283,20 @@ export function RollDetailScreen() {
                 )}
 
                 {/* Frames list */}
-                <div className="flex items-center justify-end mb-2">
-                    <button
-                        onClick={() => {
-                            setAddFrameAt(roll.frames.length + 1)
-                            setShowAddFrame(true)
-                        }}
-                        className="flex items-center gap-1 font-mono text-xs text-film-accent hover:opacity-70 transition-opacity"
-                    >
-                        <Plus size={13} />
-                        프레임 추가
-                    </button>
-                </div>
+                {roll.frames.length > 0 && (
+                    <div className="flex items-center justify-end mb-2">
+                        <button
+                            onClick={() => {
+                                setAddFrameAt(roll.frames.length + 1)
+                                setShowAddFrame(true)
+                            }}
+                            className="flex items-center gap-1 font-mono text-xs text-film-accent hover:opacity-70 transition-opacity"
+                        >
+                            <Plus size={13} />
+                            프레임 추가
+                        </button>
+                    </div>
+                )}
                 {roll.frames.length === 0 ? (
                     <div className="text-center py-10">
                         <p className="text-film-border font-mono text-sm">기록된 컷이 없습니다.</p>
