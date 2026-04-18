@@ -25,7 +25,7 @@ export interface Lens {
 export interface Frame {
     id: string
     frameNumber: number
-    timestamp: string // ISO 8601
+    timestamp?: string // ISO 8601
     lensId?: string
     aperture?: string // e.g. "f/2.8"
     shutterSpeed?: string // e.g. "1/250"

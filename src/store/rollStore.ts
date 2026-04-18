@@ -141,16 +141,10 @@ export const useRollStore = create<RollState>()(
                 const roll = get().rolls.find((r) => r.id === rollId)
                 if (!roll) return ''
 
-                const prevFrame = roll.frames[atFrameNumber - 2]
-                const nextFrame = roll.frames[atFrameNumber - 1]
-                const timestamp =
-                    prevFrame?.timestamp ?? nextFrame?.timestamp ?? new Date().toISOString()
-
                 const newId = nanoid()
                 const newFrame: Frame = {
                     id: newId,
                     frameNumber: atFrameNumber,
-                    timestamp,
                 }
 
                 set((s) => ({

@@ -9,17 +9,21 @@ interface FrameItemProps {
 
 export function FrameItem({ frame, onEdit }: FrameItemProps) {
     const lens = useMasterDataStore((s) => s.lenses.find((l) => l.id === frame.lensId))
-    const time = new Date(frame.timestamp)
-    const timeStr = time.toLocaleTimeString('ko-KR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-    })
-    const dateStr = time.toLocaleDateString('ko-KR', {
-        month: 'short',
-        day: 'numeric',
-    })
+    const timestampStr = (() => {
+        if (!frame.timestamp) return null
+        const time = new Date(frame.timestamp)
+        const timeStr = time.toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+        })
+        const dateStr = time.toLocaleDateString('ko-KR', {
+            month: 'short',
+            day: 'numeric',
+        })
+        return `${dateStr} ${timeStr}`
+    })()
 
     const hasMetadata = frame.lensId || frame.aperture || frame.shutterSpeed || frame.memo
 
@@ -40,9 +44,7 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
                 {/* Timestamp */}
                 <div className="flex items-center gap-2 text-film-muted text-xs font-mono mb-1">
                     <Clock size={11} />
-                    <span>
-                        {dateStr} {timeStr}
-                    </span>
+                    <span>{timestampStr ?? '촬영 시간 없음'}</span>
                 </div>
 
                 {hasMetadata ? (

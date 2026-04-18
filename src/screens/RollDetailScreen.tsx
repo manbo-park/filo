@@ -111,8 +111,8 @@ export function RollDetailScreen() {
         setAperture(frame.aperture ?? '')
         setShutterSpeed(frame.shutterSpeed ?? '')
         setMemo(frame.memo ?? '')
-        setTsDate(toDateStr(frame.timestamp))
-        setTsTime(toTimeStr(frame.timestamp))
+        setTsDate(frame.timestamp ? toDateStr(frame.timestamp) : '')
+        setTsTime(frame.timestamp ? toTimeStr(frame.timestamp) : '')
     }
 
     const prevFrameTimestamp = editingFrame
@@ -123,13 +123,13 @@ export function RollDetailScreen() {
     const tsError = !!(prevFrameTimestamp && currentTs && currentTs.slice(0, 19) < prevFrameTimestamp.slice(0, 19))
 
     function saveFrame() {
-        if (!editingFrame || !roll || !currentTs) return
+        if (!editingFrame || !roll) return
         updateFrame(roll.id, editingFrame.id, {
             lensId: lensId || undefined,
             aperture: aperture || undefined,
             shutterSpeed: shutterSpeed || undefined,
             memo: memo || undefined,
-            timestamp: currentTs,
+            timestamp: currentTs ?? undefined,
         })
         setEditingFrame(null)
     }
