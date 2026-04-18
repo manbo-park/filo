@@ -231,7 +231,7 @@ export function RollDetailScreen() {
                         variant="ghost"
                         size="md"
                         fullWidth
-                        className="mb-4"
+                        className="mb-4 muted-border"
                         onClick={() => setShowResumeConfirm(true)}
                     >
                         <span className="flex items-center justify-center gap-2">

@@ -77,4 +77,8 @@
             linear-gradient(#0a0a0a, #0a0a0a) padding-box,
             linear-gradient(135deg, #407c01, #d4a853) border-box;
     }
+    .muted-border {
+        border: 2px solid #666666;
+        background: #0a0a0a;
+    }
 }
