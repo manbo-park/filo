@@ -26,6 +26,7 @@ interface RollState {
         patch: Partial<Pick<Frame, 'lensId' | 'aperture' | 'shutterSpeed' | 'memo' | 'timestamp'>>
     ) => void
     deleteFrame: (rollId: string, frameId: string) => void
+    insertFrame: (rollId: string, atFrameNumber: number) => string // returns new frame id
 
     // Bulk import (replaces all rolls)
     importRolls: (rolls: Roll[], activeRollId: string | null) => void
@@ -135,6 +136,42 @@ export const useRollStore = create<RollState>()(
                             : r
                     ),
                 })),
+
+            insertFrame: (rollId, atFrameNumber) => {
+                const roll = get().rolls.find((r) => r.id === rollId)
+                if (!roll) return ''
+
+                const prevFrame = roll.frames[atFrameNumber - 2]
+                const nextFrame = roll.frames[atFrameNumber - 1]
+                const timestamp =
+                    prevFrame?.timestamp ?? nextFrame?.timestamp ?? new Date().toISOString()
+
+                const newId = nanoid()
+                const newFrame: Frame = {
+                    id: newId,
+                    frameNumber: atFrameNumber,
+                    timestamp,
+                }
+
+                set((s) => ({
+                    rolls: s.rolls.map((r) =>
+                        r.id === rollId
+                            ? {
+                                  ...r,
+                                  frames: [
+                                      ...r.frames.slice(0, atFrameNumber - 1),
+                                      newFrame,
+                                      ...r.frames
+                                          .slice(atFrameNumber - 1)
+                                          .map((f) => ({ ...f, frameNumber: f.frameNumber + 1 })),
+                                  ],
+                              }
+                            : r
+                    ),
+                }))
+
+                return newId
+            },
 
             importRolls: (rolls, activeRollId) => set({ rolls, activeRollId }),
 

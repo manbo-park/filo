@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Trash2, Play } from 'lucide-react'
+import { Trash2, Play, Plus } from 'lucide-react'
 import { PageLayout } from '@/components/ui/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -47,7 +47,7 @@ const SHUTTER_OPTIONS = [
 export function RollDetailScreen() {
     const { rollId } = useParams<{ rollId: string }>()
     const navigate = useNavigate()
-    const { rolls, deleteRoll, updateFrame, deleteFrame, resumeRoll } = useRollStore()
+    const { rolls, deleteRoll, updateFrame, deleteFrame, insertFrame, resumeRoll } = useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
 
     const roll = rolls.find((r) => r.id === rollId)
@@ -61,6 +61,8 @@ export function RollDetailScreen() {
     const [tsTime, setTsTime] = useState('')
     const [showDeleteRoll, setShowDeleteRoll] = useState(false)
     const [showResumeConfirm, setShowResumeConfirm] = useState(false)
+    const [showAddFrame, setShowAddFrame] = useState(false)
+    const [addFrameAt, setAddFrameAt] = useState(1)
 
     if (!roll) {
         return (
@@ -113,18 +115,15 @@ export function RollDetailScreen() {
         setTsTime(toTimeStr(frame.timestamp))
     }
 
-    const isLastFrame =
-        !!editingFrame && roll.frames[roll.frames.length - 1]?.id === editingFrame.id
-
     const prevFrameTimestamp = editingFrame
         ? (roll.frames[editingFrame.frameNumber - 2]?.timestamp ?? null)
         : null
 
     const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null
-    const tsError = !!(prevFrameTimestamp && currentTs && currentTs < prevFrameTimestamp)
+    const tsError = !!(prevFrameTimestamp && currentTs && currentTs.slice(0, 19) < prevFrameTimestamp.slice(0, 19))
 
     function saveFrame() {
-        if (!editingFrame || !roll || !currentTs || tsError) return
+        if (!editingFrame || !roll || !currentTs) return
         updateFrame(roll.id, editingFrame.id, {
             lensId: lensId || undefined,
             aperture: aperture || undefined,
@@ -144,6 +143,14 @@ export function RollDetailScreen() {
     function handleDeleteRoll() {
         deleteRoll(roll!.id)
         navigate('/rolls', { replace: true })
+    }
+
+    function handleInsertFrame() {
+        const newId = insertFrame(roll!.id, addFrameAt)
+        setShowAddFrame(false)
+        const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === roll!.id)
+        const newFrame = updatedRoll?.frames.find((f) => f.id === newId)
+        if (newFrame) openEditFrame(newFrame)
     }
 
     return (
@@ -235,6 +242,18 @@ export function RollDetailScreen() {
                 )}
 
                 {/* Frames list */}
+                <div className="flex items-center justify-end mb-2">
+                    <button
+                        onClick={() => {
+                            setAddFrameAt(roll.frames.length + 1)
+                            setShowAddFrame(true)
+                        }}
+                        className="flex items-center gap-1 font-mono text-xs text-film-accent hover:opacity-70 transition-opacity"
+                    >
+                        <Plus size={13} />
+                        프레임 추가
+                    </button>
+                </div>
                 {roll.frames.length === 0 ? (
                     <div className="text-center py-10">
                         <p className="text-film-border font-mono text-sm">기록된 컷이 없습니다.</p>
@@ -265,7 +284,6 @@ export function RollDetailScreen() {
                             <input
                                 type="date"
                                 value={tsDate}
-                                min={prevFrameTimestamp ? toDateStr(prevFrameTimestamp) : undefined}
                                 onChange={(e) => setTsDate(e.target.value)}
                                 className="flex-1 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
                             />
@@ -278,8 +296,8 @@ export function RollDetailScreen() {
                             />
                         </div>
                         {tsError && (
-                            <p className="font-mono text-xs text-film-danger">
-                                이전 컷({prevFrameTimestamp ? `${toDateStr(prevFrameTimestamp)} ${toTimeStr(prevFrameTimestamp)}` : ''})보다 이른 시간은 설정할 수 없습니다.
+                            <p className="font-mono text-xs text-film-warn">
+                                이전 컷의 촬영 시간보다 이릅니다.
                             </p>
                         )}
                     </div>
@@ -312,11 +330,38 @@ export function RollDetailScreen() {
                     />
 
                     <div className="flex gap-3 mt-1">
-                        <Button variant="danger" size="md" fullWidth onClick={handleDeleteFrame} disabled={!isLastFrame}>
+                        <Button variant="danger" size="md" fullWidth onClick={handleDeleteFrame}>
                             삭제
                         </Button>
                         <Button variant="primary" size="md" fullWidth onClick={saveFrame}>
                             저장
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Add frame modal */}
+            <Modal
+                isOpen={showAddFrame}
+                onClose={() => setShowAddFrame(false)}
+                title="프레임 추가"
+            >
+                <div className="flex flex-col gap-4">
+                    <Select
+                        label="삽입할 위치"
+                        value={String(addFrameAt)}
+                        onChange={(e) => setAddFrameAt(Number(e.target.value))}
+                        options={Array.from({ length: roll.frames.length + 1 }, (_, i) => ({
+                            value: String(i + 1),
+                            label: `${i + 1}번`,
+                        }))}
+                    />
+                    <div className="flex gap-3">
+                        <Button variant="secondary" fullWidth onClick={() => setShowAddFrame(false)}>
+                            취소
+                        </Button>
+                        <Button variant="primary" fullWidth onClick={handleInsertFrame}>
+                            추가
                         </Button>
                     </div>
                 </div>

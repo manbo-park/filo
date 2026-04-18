@@ -13,6 +13,7 @@ export default {
                     text: '#e5e5e5',
                     accent: '#d4a853',
                     danger: '#e05a4e',
+                    warn: '#d4b84a',
                 },
             },
             fontFamily: {
