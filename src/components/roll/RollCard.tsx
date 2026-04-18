@@ -31,7 +31,6 @@ export function RollCard({ roll }: RollCardProps) {
           : startStr
 
     const progress = roll.frames.length
-    const isActive = roll.status === 'active'
 
     return (
         <button
@@ -40,14 +39,8 @@ export function RollCard({ roll }: RollCardProps) {
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                    {/* Status + Date */}
+                    {/* Date */}
                     <div className="flex items-center gap-2 mb-2">
-                        {isActive && (
-                            <span className="inline-flex items-center gap-1 text-film-accent text-xs font-mono">
-                                <span className="w-1.5 h-1.5 rounded-full bg-film-accent animate-pulse" />
-                                촬영 중
-                            </span>
-                        )}
                         <span className="text-film-muted text-xs font-mono">{dateStr}</span>
                     </div>
 

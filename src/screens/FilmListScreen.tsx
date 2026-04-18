@@ -32,9 +32,11 @@ export function FilmListScreen() {
     const [importError, setImportError] = useState<string | null>(null)
     const [confirmClear, setConfirmClear] = useState(false)
 
-    const sortedRolls = [...rolls].sort(
-        (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-    )
+    const byDate = (a: (typeof rolls)[0], b: (typeof rolls)[0]) =>
+        new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+
+    const activeRolls = rolls.filter((r) => r.status === 'active').sort(byDate)
+    const finishedRolls = rolls.filter((r) => r.status === 'finished').sort(byDate)
 
     function validateAndStart() {
         const newErrors: Record<string, string> = {}
@@ -184,7 +186,7 @@ export function FilmListScreen() {
                 </Button>
 
                 {/* Roll list */}
-                {sortedRolls.length === 0 ? (
+                {activeRolls.length === 0 && finishedRolls.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 gap-4">
                         <Film size={40} className="text-film-border" />
                         <div className="text-center">
@@ -196,9 +198,32 @@ export function FilmListScreen() {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2 mt-1">
-                        {sortedRolls.map((roll) => (
-                            <RollCard key={roll.id} roll={roll} />
-                        ))}
+                        {activeRolls.length > 0 && (
+                            <>
+                                <div className="flex items-center gap-1.5 px-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-film-accent animate-pulse shrink-0" />
+                                    <p className="font-mono text-xs text-film-accent uppercase tracking-widest">
+                                        촬영 중
+                                    </p>
+                                </div>
+                                {activeRolls.map((roll) => (
+                                    <RollCard key={roll.id} roll={roll} />
+                                ))}
+                            </>
+                        )}
+                        {activeRolls.length > 0 && finishedRolls.length > 0 && (
+                            <div className="h-4" />
+                        )}
+                        {finishedRolls.length > 0 && (
+                            <>
+                                <p className="font-mono text-xs text-film-muted uppercase tracking-widest px-1">
+                                    촬영 완료
+                                </p>
+                                {finishedRolls.map((roll) => (
+                                    <RollCard key={roll.id} roll={roll} />
+                                ))}
+                            </>
+                        )}
                     </div>
                 )}
             </div>
