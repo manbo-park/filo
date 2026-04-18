@@ -50,24 +50,18 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
                 {hasMetadata ? (
                     <div className="flex flex-col gap-1">
                         {lens && (
-                            <div className="flex items-center gap-1 text-film-text text-xs font-mono">
-                                <Search size={11} className="text-film-muted shrink-0" />
+                            <div className="flex items-center gap-1 text-film-muted text-xs font-mono">
+                                <Search size={11} className="shrink-0" />
                                 <span>{lens.name}</span>
                             </div>
                         )}
                         {(frame.aperture || frame.shutterSpeed) && (
-                            <div className="flex items-center gap-2 text-film-text text-xs font-mono">
+                            <div className="flex items-center gap-2 text-film-muted text-xs font-mono">
                                 {frame.aperture && (
-                                    <span>
-                                        <span className="text-film-muted">f </span>
-                                        {frame.aperture.replace(/^f\//i, '')}
-                                    </span>
+                                    <span>f {frame.aperture.replace(/^f\//i, '')}</span>
                                 )}
                                 {frame.shutterSpeed && (
-                                    <span>
-                                        <span className="text-film-muted">ss </span>
-                                        {frame.shutterSpeed}
-                                    </span>
+                                    <span>ss {frame.shutterSpeed}</span>
                                 )}
                             </div>
                         )}
