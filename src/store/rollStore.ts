@@ -19,7 +19,7 @@ interface RollState {
     deleteRoll: (rollId: string) => void
 
     setActiveRollId: (rollId: string) => void
-    updateRoll: (rollId: string, patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames'>>) => void
+    updateRoll: (rollId: string, patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames' | 'memo'>>) => void
     setCurrentLens: (rollId: string, lensId: string | undefined) => void
     recordFrame: (rollId: string) => void
     updateFrame: (

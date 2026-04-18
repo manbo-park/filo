@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Film, Camera, ChevronRight } from 'lucide-react'
+import { Film, Camera, ChevronRight, FileText } from 'lucide-react'
 import type { Roll } from '@/types'
 import { useMasterDataStore } from '@/store/masterDataStore'
 
@@ -62,6 +62,14 @@ export function RollCard({ roll }: RollCardProps) {
                         <Camera size={12} className="shrink-0" />
                         <span className="truncate">{camera?.name ?? '—'}</span>
                     </div>
+
+                    {/* Memo */}
+                    {roll.memo && (
+                        <div className="flex items-start gap-2 text-film-muted text-xs font-mono mt-1">
+                            <FileText size={12} className="shrink-0 mt-0.5" />
+                            <span className="line-clamp-2 break-words">{roll.memo}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">

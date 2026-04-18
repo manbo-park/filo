@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Trash2, Play, Plus, Pencil, Camera } from 'lucide-react'
+import { Trash2, Play, Plus, Pencil, Camera, FileText } from 'lucide-react'
 import { PageLayout } from '@/components/ui/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -67,6 +67,7 @@ export function RollDetailScreen() {
     const [editFilmId, setEditFilmId] = useState('')
     const [editCameraId, setEditCameraId] = useState('')
     const [editMaxFrames, setEditMaxFrames] = useState('')
+    const [editRollMemo, setEditRollMemo] = useState('')
 
     if (!roll) {
         return (
@@ -153,13 +154,19 @@ export function RollDetailScreen() {
         setEditFilmId(roll!.filmId)
         setEditCameraId(roll!.cameraId)
         setEditMaxFrames(String(roll!.maxFrames))
+        setEditRollMemo(roll!.memo ?? '')
         setShowEditRoll(true)
     }
 
     function saveRoll() {
         const maxFrames = parseInt(editMaxFrames, 10)
         if (!editFilmId || !editCameraId || !maxFrames || maxFrames < 1) return
-        updateRoll(roll!.id, { filmId: editFilmId, cameraId: editCameraId, maxFrames })
+        updateRoll(roll!.id, {
+            filmId: editFilmId,
+            cameraId: editCameraId,
+            maxFrames,
+            memo: editRollMemo || undefined,
+        })
         setShowEditRoll(false)
     }
 
@@ -235,6 +242,12 @@ export function RollDetailScreen() {
                         <Camera size={11} />
                         {camera?.name ?? '—'}
                     </div>
+                    {roll.memo && (
+                        <div className="mt-2 text-film-muted font-mono text-xs flex items-start gap-1.5">
+                            <FileText size={11} className="shrink-0 mt-0.5" />
+                            <span className="whitespace-pre-wrap break-words">{roll.memo}</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Go to shoot (if active) */}
@@ -396,6 +409,18 @@ export function RollDetailScreen() {
                         onChange={(e) => setEditMaxFrames(e.target.value)}
                         placeholder="36"
                     />
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-mono text-film-muted uppercase tracking-wider">
+                            메모
+                        </label>
+                        <textarea
+                            value={editRollMemo}
+                            onChange={(e) => setEditRollMemo(e.target.value)}
+                            placeholder="이 롤에 대한 메모..."
+                            rows={3}
+                            className="bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors resize-none"
+                        />
+                    </div>
                     <div className="flex gap-3 mt-1">
                         <Button variant="secondary" fullWidth onClick={() => setShowEditRoll(false)}>
                             취소

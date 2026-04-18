@@ -44,6 +44,7 @@ export interface Roll {
     finishedAt?: string // ISO 8601
     frames: Frame[]
     status: RollStatus
+    memo?: string
 }
 
 // ─── Export/Import envelope ───────────────────────────────────────────────────
