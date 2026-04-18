@@ -14,6 +14,8 @@ export function ShootingScreen() {
     const [showFinishConfirm, setShowFinishConfirm] = useState(false)
     const [showUndoConfirm, setShowUndoConfirm] = useState(false)
     const [showLensSwap, setShowLensSwap] = useState(false)
+    const [showOverageModal, setShowOverageModal] = useState(false)
+    const [hasShownOverageModal, setHasShownOverageModal] = useState(false)
     const [justRecorded, setJustRecorded] = useState(false)
 
     const activeRoll = rolls.find((r) => r.id === activeRollId && r.status === 'active')
@@ -37,15 +39,18 @@ export function ShootingScreen() {
 
     const frameCount = activeRoll.frames.length
     const maxFrames = activeRoll.maxFrames
-    const isRollFull = frameCount >= maxFrames
+    const isOverMax = frameCount >= maxFrames
     const nextFrame = frameCount + 1
     const progressPct = Math.min((frameCount / maxFrames) * 100, 100)
 
     function handleRecord() {
-        if (isRollFull) return
         recordFrame(activeRoll!.id)
         setJustRecorded(true)
         setTimeout(() => setJustRecorded(false), 600)
+        if (frameCount + 1 === maxFrames && !hasShownOverageModal) {
+            setShowOverageModal(true)
+            setHasShownOverageModal(true)
+        }
     }
 
     function handleUndo() {
@@ -119,8 +124,10 @@ export function ShootingScreen() {
                     <div className="mt-4">
                         <div className="flex justify-between text-xs font-mono mb-1.5">
                             <span className="text-film-muted">{frameCount}컷 촬영</span>
-                            <span className={isRollFull ? 'text-film-accent' : 'text-film-muted'}>
-                                {maxFrames - frameCount}컷 남음
+                            <span className={isOverMax ? 'text-film-accent' : 'text-film-muted'}>
+                                {isOverMax
+                                    ? `+${frameCount - maxFrames}컷 초과`
+                                    : `${maxFrames - frameCount}컷 남음`}
                             </span>
                         </div>
                         <div className="h-1 bg-film-border rounded-full overflow-hidden">
@@ -135,20 +142,17 @@ export function ShootingScreen() {
                 {/* Frame counter — big display */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-2">
                     <span className="text-film-muted font-mono text-xs uppercase tracking-widest">
-                        {isRollFull ? '롤 완료' : '다음 컷'}
+                        다음 컷
                     </span>
                     <div
                         className={[
                             'text-[9rem] font-mono font-bold leading-none tabular-nums transition-all duration-150',
                             justRecorded ? 'text-film-accent scale-110' : 'text-film-text',
-                            isRollFull ? 'text-film-muted' : '',
                         ]
                             .filter(Boolean)
                             .join(' ')}
                     >
-                        {isRollFull
-                            ? String(maxFrames).padStart(2, '0')
-                            : String(nextFrame).padStart(2, '0')}
+                        {String(nextFrame).padStart(2, '0')}
                     </div>
                     <span className="text-film-border font-mono text-sm">
                         / {String(maxFrames).padStart(2, '0')}
@@ -157,31 +161,23 @@ export function ShootingScreen() {
 
                 {/* RECORD button */}
                 <div className="flex flex-col gap-3 pb-safe-bottom">
-                    {isRollFull ? (
-                        <div className="text-center">
-                            <p className="text-film-accent font-mono text-sm mb-4">
-                                롤이 꽉 찼습니다. 마무리할 시간이에요!
-                            </p>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={handleRecord}
-                            className={[
-                                'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-all duration-150 active:scale-[0.97]',
-                                justRecorded
-                                    ? 'accent-gradient-bg text-film-bg'
-                                    : 'accent-gradient-border text-film-text',
-                            ]
-                                .filter(Boolean)
-                                .join(' ')}
-                        >
-                            {justRecorded ? '✓ 기록됨' : '⬤  촬영'}
-                        </button>
-                    )}
+                    <button
+                        onClick={handleRecord}
+                        className={[
+                            'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-all duration-150 active:scale-[0.97]',
+                            justRecorded
+                                ? 'accent-gradient-bg text-film-bg'
+                                : 'accent-gradient-border text-film-text',
+                        ]
+                            .filter(Boolean)
+                            .join(' ')}
+                    >
+                        {justRecorded ? '✓ 기록됨' : '⬤  촬영'}
+                    </button>
 
                     <div className="flex gap-3">
                         <Button
-                            variant={isRollFull ? 'primary' : 'ghost'}
+                            variant="ghost"
                             size="md"
                             fullWidth
                             onClick={() => setShowFinishConfirm(true)}
@@ -204,6 +200,39 @@ export function ShootingScreen() {
                     </div>
                 </div>
             </div>
+
+            {/* Overage modal — shown once when maxFrames is reached */}
+            <Modal
+                isOpen={showOverageModal}
+                onClose={() => setShowOverageModal(false)}
+                title="롤을 마무리할까요?"
+            >
+                <div className="flex flex-col gap-4">
+                    <p className="text-film-muted font-mono text-sm">
+                        <span className="text-film-text font-bold">{maxFrames}</span>컷을 모두
+                        촬영했습니다. 계속 촬영하거나 롤을 마무리할 수 있습니다.
+                    </p>
+                    <div className="flex gap-3">
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => setShowOverageModal(false)}
+                        >
+                            계속 촬영
+                        </Button>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => {
+                                setShowOverageModal(false)
+                                setShowFinishConfirm(true)
+                            }}
+                        >
+                            마무리
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* Finish confirmation */}
             <Modal

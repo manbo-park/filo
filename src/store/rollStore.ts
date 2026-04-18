@@ -82,7 +82,7 @@ export const useRollStore = create<RollState>()(
 
             recordFrame: (rollId) => {
                 const roll = get().rolls.find((r) => r.id === rollId)
-                if (!roll || roll.frames.length >= roll.maxFrames) return
+                if (!roll) return
 
                 const frame: Frame = {
                     id: nanoid(),
