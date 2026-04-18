@@ -1,4 +1,4 @@
-import { Clock, FileText, Edit3, Search } from 'lucide-react'
+import { Clock, FileText, Search } from 'lucide-react'
 import type { Frame } from '@/types'
 import { useMasterDataStore } from '@/store/masterDataStore'
 
@@ -79,17 +79,12 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
                         )}
                     </div>
                 ) : (
-                    <span className="text-film-border text-xs font-mono italic">
-                        탭하여 메모 추가
-                    </span>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-film-border text-xs font-mono italic">
+                            탭하여 프레임 정보 추가
+                        </span>
+                    </div>
                 )}
-            </div>
-
-            {/* Edit indicator */}
-            <div
-                className="shrink-0 mt-0.5 text-film-muted"
-            >
-                <Edit3 size={14} />
             </div>
         </button>
     )

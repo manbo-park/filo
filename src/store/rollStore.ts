@@ -19,6 +19,7 @@ interface RollState {
     deleteRoll: (rollId: string) => void
 
     setActiveRollId: (rollId: string) => void
+    updateRoll: (rollId: string, patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames'>>) => void
     setCurrentLens: (rollId: string, lensId: string | undefined) => void
     recordFrame: (rollId: string) => void
     updateFrame: (
@@ -87,6 +88,11 @@ export const useRollStore = create<RollState>()(
                 })),
 
             setActiveRollId: (rollId) => set({ activeRollId: rollId }),
+
+            updateRoll: (rollId, patch) =>
+                set((s) => ({
+                    rolls: s.rolls.map((r) => (r.id === rollId ? { ...r, ...patch } : r)),
+                })),
 
             setCurrentLens: (rollId, lensId) =>
                 set((s) => ({

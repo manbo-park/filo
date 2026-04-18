@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Trash2, Play, Plus } from 'lucide-react'
+import { Trash2, Play, Plus, Pencil, Camera } from 'lucide-react'
 import { PageLayout } from '@/components/ui/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -47,7 +47,7 @@ const SHUTTER_OPTIONS = [
 export function RollDetailScreen() {
     const { rollId } = useParams<{ rollId: string }>()
     const navigate = useNavigate()
-    const { rolls, deleteRoll, updateFrame, deleteFrame, insertFrame, resumeRoll, setActiveRollId } = useRollStore()
+    const { rolls, deleteRoll, updateFrame, updateRoll, deleteFrame, insertFrame, resumeRoll, setActiveRollId } = useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
 
     const roll = rolls.find((r) => r.id === rollId)
@@ -63,6 +63,10 @@ export function RollDetailScreen() {
     const [showResumeConfirm, setShowResumeConfirm] = useState(false)
     const [showAddFrame, setShowAddFrame] = useState(false)
     const [addFrameAt, setAddFrameAt] = useState(1)
+    const [showEditRoll, setShowEditRoll] = useState(false)
+    const [editFilmId, setEditFilmId] = useState('')
+    const [editCameraId, setEditCameraId] = useState('')
+    const [editMaxFrames, setEditMaxFrames] = useState('')
 
     if (!roll) {
         return (
@@ -145,6 +149,20 @@ export function RollDetailScreen() {
         navigate('/rolls', { replace: true })
     }
 
+    function openEditRoll() {
+        setEditFilmId(roll!.filmId)
+        setEditCameraId(roll!.cameraId)
+        setEditMaxFrames(String(roll!.maxFrames))
+        setShowEditRoll(true)
+    }
+
+    function saveRoll() {
+        const maxFrames = parseInt(editMaxFrames, 10)
+        if (!editFilmId || !editCameraId || !maxFrames || maxFrames < 1) return
+        updateRoll(roll!.id, { filmId: editFilmId, cameraId: editCameraId, maxFrames })
+        setShowEditRoll(false)
+    }
+
     function handleInsertFrame() {
         const newId = insertFrame(roll!.id, addFrameAt)
         setShowAddFrame(false)
@@ -158,13 +176,22 @@ export function RollDetailScreen() {
             title={film?.name ?? 'Roll'}
             showBack
             rightAction={
-                <button
-                    onClick={() => setShowDeleteRoll(true)}
-                    className="p-2 text-film-muted hover:text-film-danger transition-colors"
-                    title="롤 삭제"
-                >
-                    <Trash2 size={16} />
-                </button>
+                <div className="flex items-center">
+                    <button
+                        onClick={openEditRoll}
+                        className="p-2 text-film-muted hover:text-film-text transition-colors"
+                        title="롤 수정"
+                    >
+                        <Pencil size={16} />
+                    </button>
+                    <button
+                        onClick={() => setShowDeleteRoll(true)}
+                        className="p-2 text-film-muted hover:text-film-danger transition-colors"
+                        title="롤 삭제"
+                    >
+                        <Trash2 size={16} />
+                    </button>
+                </div>
             }
         >
             <div className="px-4 py-4">
@@ -182,7 +209,7 @@ export function RollDetailScreen() {
                             )}
                             {!isActive && (
                                 <span className="text-film-muted font-mono text-xs uppercase tracking-widest">
-                                    완료
+                                    촬영 완료
                                 </span>
                             )}
                         </div>
@@ -204,7 +231,8 @@ export function RollDetailScreen() {
                         </div>
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-film-border text-film-muted font-mono text-xs">
+                    <div className="mt-3 pt-3 border-t border-film-border text-film-muted font-mono text-xs flex items-center gap-1.5">
+                        <Camera size={11} />
                         {camera?.name ?? '—'}
                     </div>
                 </div>
@@ -334,6 +362,45 @@ export function RollDetailScreen() {
                             삭제
                         </Button>
                         <Button variant="primary" size="md" fullWidth onClick={saveFrame}>
+                            저장
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Edit roll modal */}
+            <Modal
+                isOpen={showEditRoll}
+                onClose={() => setShowEditRoll(false)}
+                title="롤 정보 수정"
+            >
+                <div className="flex flex-col gap-4">
+                    <Select
+                        label="필름"
+                        value={editFilmId}
+                        onChange={(e) => setEditFilmId(e.target.value)}
+                        options={films.map((f) => ({ value: f.id, label: f.name }))}
+                        placeholder="필름 선택..."
+                    />
+                    <Select
+                        label="카메라"
+                        value={editCameraId}
+                        onChange={(e) => setEditCameraId(e.target.value)}
+                        options={cameras.map((c) => ({ value: c.id, label: c.name }))}
+                        placeholder="카메라 선택..."
+                    />
+                    <Input
+                        label="전체 프레임 수"
+                        type="number"
+                        value={editMaxFrames}
+                        onChange={(e) => setEditMaxFrames(e.target.value)}
+                        placeholder="36"
+                    />
+                    <div className="flex gap-3 mt-1">
+                        <Button variant="secondary" fullWidth onClick={() => setShowEditRoll(false)}>
+                            취소
+                        </Button>
+                        <Button variant="primary" fullWidth onClick={saveRoll}>
                             저장
                         </Button>
                     </div>
