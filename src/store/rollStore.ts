@@ -15,6 +15,7 @@ interface RollState {
     }) => string // returns new roll id
 
     finishRoll: (rollId: string) => void
+    resumeRoll: (rollId: string) => void
     deleteRoll: (rollId: string) => void
 
     setCurrentLens: (rollId: string, lensId: string | undefined) => void
@@ -65,6 +66,16 @@ export const useRollStore = create<RollState>()(
                             : r
                     ),
                     activeRollId: s.activeRollId === rollId ? null : s.activeRollId,
+                })),
+
+            resumeRoll: (rollId) =>
+                set((s) => ({
+                    rolls: s.rolls.map((r) =>
+                        r.id === rollId
+                            ? { ...r, status: 'active', finishedAt: undefined }
+                            : r
+                    ),
+                    activeRollId: rollId,
                 })),
 
             deleteRoll: (rollId) =>

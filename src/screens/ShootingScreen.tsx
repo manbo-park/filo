@@ -244,7 +244,7 @@ export function ShootingScreen() {
                     <p className="text-film-muted font-mono text-sm">
                         <span className="text-film-text font-bold">{frameCount}</span> /{' '}
                         <span className="text-film-text font-bold">{maxFrames}</span>컷을
-                        촬영했습니다. 마무리하면 이 롤은 읽기 전용이 됩니다.
+                        촬영했습니다.
                     </p>
                     <div className="flex gap-3">
                         <Button

@@ -47,7 +47,7 @@ const SHUTTER_OPTIONS = [
 export function RollDetailScreen() {
     const { rollId } = useParams<{ rollId: string }>()
     const navigate = useNavigate()
-    const { rolls, deleteRoll, updateFrame, deleteFrame } = useRollStore()
+    const { rolls, deleteRoll, updateFrame, deleteFrame, resumeRoll } = useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
 
     const roll = rolls.find((r) => r.id === rollId)
@@ -60,6 +60,7 @@ export function RollDetailScreen() {
     const [tsDate, setTsDate] = useState('')
     const [tsTime, setTsTime] = useState('')
     const [showDeleteRoll, setShowDeleteRoll] = useState(false)
+    const [showResumeConfirm, setShowResumeConfirm] = useState(false)
 
     if (!roll) {
         return (
@@ -217,6 +218,22 @@ export function RollDetailScreen() {
                     </Button>
                 )}
 
+                {/* Resume shooting (if finished) */}
+                {!isActive && (
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        fullWidth
+                        className="mb-4"
+                        onClick={() => setShowResumeConfirm(true)}
+                    >
+                        <span className="flex items-center justify-center gap-2">
+                            <Play size={14} />
+                            촬영 재개하기
+                        </span>
+                    </Button>
+                )}
+
                 {/* Frames list */}
                 {roll.frames.length === 0 ? (
                     <div className="text-center py-10">
@@ -300,6 +317,39 @@ export function RollDetailScreen() {
                         </Button>
                         <Button variant="primary" size="md" fullWidth onClick={saveFrame}>
                             저장
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Resume roll confirmation */}
+            <Modal
+                isOpen={showResumeConfirm}
+                onClose={() => setShowResumeConfirm(false)}
+                title="촬영을 재개할까요?"
+            >
+                <div className="flex flex-col gap-4">
+                    <p className="text-film-muted font-mono text-sm">
+                        촬영이 마무리된 롤입니다. 촬영을 재개하시겠습니까?
+                    </p>
+                    <div className="flex gap-3">
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => setShowResumeConfirm(false)}
+                        >
+                            취소
+                        </Button>
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            onClick={() => {
+                                resumeRoll(roll!.id)
+                                setShowResumeConfirm(false)
+                                navigate('/shoot')
+                            }}
+                        >
+                            재개
                         </Button>
                     </div>
                 </div>
