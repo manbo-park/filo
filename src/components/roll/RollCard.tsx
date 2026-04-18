@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Film, Camera, ChevronRight, FileText } from 'lucide-react'
+import { Film, Camera, FileText } from 'lucide-react'
 import type { Roll } from '@/types'
 import { useMasterDataStore } from '@/store/masterDataStore'
 
@@ -66,24 +66,22 @@ export function RollCard({ roll }: RollCardProps) {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                    {/* Frame counter */}
-                    <div className="text-right">
-                        <div className="text-film-text font-mono font-bold text-lg leading-none">
-                            {String(progress).padStart(2, '0')}
-                        </div>
-                        <div className="text-film-muted font-mono text-xs">/{roll.maxFrames}</div>
-                    </div>
-                    <ChevronRight size={16} className="text-film-border" />
-                </div>
             </div>
 
             {/* Progress bar */}
-            <div className="mt-3 h-0.5 bg-film-border rounded-full overflow-hidden">
-                <div
-                    className="h-full accent-gradient-bg transition-all duration-300"
-                    style={{ width: `${Math.min((progress / roll.maxFrames) * 100, 100)}%` }}
-                />
+            <div className="mt-3">
+                <div className="flex justify-end mb-1">
+                    <span className="font-mono">
+                        <span className="text-film-text text-base font-semibold">{String(progress).padStart(2, '0')}</span>
+                        <span className="text-film-muted text-xs">/{roll.maxFrames}</span>
+                    </span>
+                </div>
+                <div className="h-0.5 bg-film-border rounded-full overflow-hidden relative">
+                    <div
+                        className="absolute inset-0 accent-gradient-bg transition-all duration-300"
+                        style={{ clipPath: `inset(0 ${100 - Math.min((progress / roll.maxFrames) * 100, 100)}% 0 0)` }}
+                    />
+                </div>
             </div>
         </button>
     )
