@@ -8,18 +8,17 @@ interface RollState {
     rolls: Roll[]
     activeRollId: string | null
 
-    startRoll: (params: {
-        filmId: string
-        cameraId: string
-        maxFrames: number
-    }) => string // returns new roll id
+    startRoll: (params: { filmId: string; cameraId: string; maxFrames: number }) => string // returns new roll id
 
     finishRoll: (rollId: string) => void
     resumeRoll: (rollId: string) => void
     deleteRoll: (rollId: string) => void
 
     setActiveRollId: (rollId: string) => void
-    updateRoll: (rollId: string, patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames' | 'memo'>>) => void
+    updateRoll: (
+        rollId: string,
+        patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames' | 'memo'>>
+    ) => void
     setCurrentLens: (rollId: string, lensId: string | undefined) => void
     recordFrame: (rollId: string) => void
     updateFrame: (
@@ -74,9 +73,7 @@ export const useRollStore = create<RollState>()(
             resumeRoll: (rollId) =>
                 set((s) => ({
                     rolls: s.rolls.map((r) =>
-                        r.id === rollId
-                            ? { ...r, status: 'active', finishedAt: undefined }
-                            : r
+                        r.id === rollId ? { ...r, status: 'active', finishedAt: undefined } : r
                     ),
                     activeRollId: rollId,
                 })),

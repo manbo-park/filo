@@ -47,7 +47,16 @@ const SHUTTER_OPTIONS = [
 export function RollDetailScreen() {
     const { rollId } = useParams<{ rollId: string }>()
     const navigate = useNavigate()
-    const { rolls, deleteRoll, updateFrame, updateRoll, deleteFrame, insertFrame, resumeRoll, setActiveRollId } = useRollStore()
+    const {
+        rolls,
+        deleteRoll,
+        updateFrame,
+        updateRoll,
+        deleteFrame,
+        insertFrame,
+        resumeRoll,
+        setActiveRollId,
+    } = useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
 
     const roll = rolls.find((r) => r.id === rollId)
@@ -125,7 +134,11 @@ export function RollDetailScreen() {
         : null
 
     const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null
-    const tsError = !!(prevFrameTimestamp && currentTs && currentTs.slice(0, 19) < prevFrameTimestamp.slice(0, 19))
+    const tsError = !!(
+        prevFrameTimestamp &&
+        currentTs &&
+        currentTs.slice(0, 19) < prevFrameTimestamp.slice(0, 19)
+    )
 
     function saveFrame() {
         if (!editingFrame || !roll) return
@@ -257,7 +270,10 @@ export function RollDetailScreen() {
                         size="md"
                         fullWidth
                         className="mb-4"
-                        onClick={() => { setActiveRollId(roll.id); navigate('/shoot') }}
+                        onClick={() => {
+                            setActiveRollId(roll.id)
+                            navigate('/shoot')
+                        }}
                     >
                         <span className="flex items-center justify-center gap-2">
                             <Play size={14} />
@@ -424,7 +440,11 @@ export function RollDetailScreen() {
                         />
                     </div>
                     <div className="flex gap-3 mt-1">
-                        <Button variant="secondary" fullWidth onClick={() => setShowEditRoll(false)}>
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => setShowEditRoll(false)}
+                        >
                             취소
                         </Button>
                         <Button variant="primary" fullWidth onClick={saveRoll}>
@@ -435,11 +455,7 @@ export function RollDetailScreen() {
             </Modal>
 
             {/* Add frame modal */}
-            <Modal
-                isOpen={showAddFrame}
-                onClose={() => setShowAddFrame(false)}
-                title="프레임 추가"
-            >
+            <Modal isOpen={showAddFrame} onClose={() => setShowAddFrame(false)} title="프레임 추가">
                 <div className="flex flex-col gap-4">
                     <Select
                         label="삽입할 위치"
@@ -451,7 +467,11 @@ export function RollDetailScreen() {
                         }))}
                     />
                     <div className="flex gap-3">
-                        <Button variant="secondary" fullWidth onClick={() => setShowAddFrame(false)}>
+                        <Button
+                            variant="secondary"
+                            fullWidth
+                            onClick={() => setShowAddFrame(false)}
+                        >
                             취소
                         </Button>
                         <Button variant="primary" fullWidth onClick={handleInsertFrame}>

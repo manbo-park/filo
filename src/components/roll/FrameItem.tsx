@@ -60,9 +60,7 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
                                 {frame.aperture && (
                                     <span>f {frame.aperture.replace(/^f\//i, '')}</span>
                                 )}
-                                {frame.shutterSpeed && (
-                                    <span>ss {frame.shutterSpeed}</span>
-                                )}
+                                {frame.shutterSpeed && <span>ss {frame.shutterSpeed}</span>}
                             </div>
                         )}
                         {frame.memo && (

@@ -24,11 +24,12 @@ export function RollCard({ roll }: RollCardProps) {
     const startStr = fmt(roll.startedAt)
     const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null
 
-    const dateStr = roll.status === 'active'
-        ? `${startStr} ~`
-        : endStr && endStr !== startStr
-          ? `${startStr} ~ ${endStr}`
-          : startStr
+    const dateStr =
+        roll.status === 'active'
+            ? `${startStr} ~`
+            : endStr && endStr !== startStr
+              ? `${startStr} ~ ${endStr}`
+              : startStr
 
     const progress = roll.frames.length
 

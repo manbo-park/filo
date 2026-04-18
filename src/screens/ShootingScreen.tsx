@@ -9,7 +9,8 @@ import { useMasterDataStore } from '@/store/masterDataStore'
 
 export function ShootingScreen() {
     const navigate = useNavigate()
-    const { rolls, activeRollId, recordFrame, deleteFrame, finishRoll, setCurrentLens } = useRollStore()
+    const { rolls, activeRollId, recordFrame, deleteFrame, finishRoll, setCurrentLens } =
+        useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
     const [showFinishConfirm, setShowFinishConfirm] = useState(false)
     const [showUndoConfirm, setShowUndoConfirm] = useState(false)
@@ -268,8 +269,8 @@ export function ShootingScreen() {
             >
                 <div className="flex flex-col gap-4">
                     <p className="text-film-muted font-mono text-sm">
-                        <span className="text-film-text font-bold">{frameCount}</span>번째 컷
-                        기록이 삭제됩니다.
+                        <span className="text-film-text font-bold">{frameCount}</span>번째 컷 기록이
+                        삭제됩니다.
                     </p>
                     <div className="flex gap-3">
                         <Button
