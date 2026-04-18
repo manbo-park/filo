@@ -47,7 +47,7 @@ const SHUTTER_OPTIONS = [
 export function RollDetailScreen() {
     const { rollId } = useParams<{ rollId: string }>()
     const navigate = useNavigate()
-    const { rolls, deleteRoll, updateFrame, deleteFrame, insertFrame, resumeRoll } = useRollStore()
+    const { rolls, deleteRoll, updateFrame, deleteFrame, insertFrame, resumeRoll, setActiveRollId } = useRollStore()
     const { films, cameras, lenses } = useMasterDataStore()
 
     const roll = rolls.find((r) => r.id === rollId)
@@ -216,7 +216,7 @@ export function RollDetailScreen() {
                         size="md"
                         fullWidth
                         className="mb-4"
-                        onClick={() => navigate('/shoot')}
+                        onClick={() => { setActiveRollId(roll.id); navigate('/shoot') }}
                     >
                         <span className="flex items-center justify-center gap-2">
                             <Play size={14} />
@@ -275,7 +275,7 @@ export function RollDetailScreen() {
             <Modal
                 isOpen={!!editingFrame}
                 onClose={() => setEditingFrame(null)}
-                title={`${editingFrame?.frameNumber ?? ''}번 컷`}
+                title={`${editingFrame?.frameNumber ?? ''}번 프레임`}
             >
                 <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1">

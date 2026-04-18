@@ -18,6 +18,7 @@ interface RollState {
     resumeRoll: (rollId: string) => void
     deleteRoll: (rollId: string) => void
 
+    setActiveRollId: (rollId: string) => void
     setCurrentLens: (rollId: string, lensId: string | undefined) => void
     recordFrame: (rollId: string) => void
     updateFrame: (
@@ -84,6 +85,8 @@ export const useRollStore = create<RollState>()(
                     rolls: s.rolls.filter((r) => r.id !== rollId),
                     activeRollId: s.activeRollId === rollId ? null : s.activeRollId,
                 })),
+
+            setActiveRollId: (rollId) => set({ activeRollId: rollId }),
 
             setCurrentLens: (rollId, lensId) =>
                 set((s) => ({
