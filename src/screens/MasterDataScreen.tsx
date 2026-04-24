@@ -73,8 +73,78 @@ function FilmRow({ film, onUpdate, onDelete }: FilmRowProps) {
     )
 }
 
+interface CameraRowProps {
+    camera: Camera
+    onUpdate: (patch: Partial<Omit<Camera, 'id'>>) => void
+    onDelete: () => void
+}
+function CameraRow({ camera, onUpdate, onDelete }: CameraRowProps) {
+    const [editing, setEditing] = useState(false)
+    const [name, setName] = useState(camera.name)
+    const [brand, setBrand] = useState(camera.brand ?? '')
+
+    function save() {
+        if (!name.trim()) return
+        onUpdate({ name: name.trim(), brand: brand.trim() || undefined })
+        setEditing(false)
+    }
+
+    if (editing) {
+        return (
+            <div className="flex items-center gap-2 py-2 border-b border-film-border last:border-b-0">
+                <div className="flex-1 flex flex-col gap-1">
+                    <input
+                        className="w-full bg-film-bg border border-film-accent rounded px-2 py-1 text-film-text font-mono text-sm focus:outline-none"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        autoFocus
+                        onKeyDown={(e) => e.key === 'Enter' && save()}
+                        placeholder="카메라 이름"
+                    />
+                    <input
+                        className="w-full bg-film-bg border border-film-border rounded px-2 py-1 text-film-text font-mono text-xs focus:outline-none focus:border-film-accent"
+                        value={brand}
+                        onChange={(e) => setBrand(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && save()}
+                        placeholder="제조사 (선택)"
+                    />
+                </div>
+                <button onClick={save} className="text-film-accent hover:text-yellow-400 p-1">
+                    <Check size={16} />
+                </button>
+                <button
+                    onClick={() => setEditing(false)}
+                    className="text-film-muted hover:text-film-text p-1"
+                >
+                    <X size={14} />
+                </button>
+            </div>
+        )
+    }
+
+    return (
+        <div className="flex items-center gap-2 py-2.5 border-b border-film-border last:border-b-0">
+            <div className="flex-1 min-w-0">
+                <span className="text-film-text font-mono text-sm">{camera.name}</span>
+                {camera.brand && (
+                    <span className="text-film-muted font-mono text-xs ml-2">{camera.brand}</span>
+                )}
+            </div>
+            <button
+                onClick={() => setEditing(true)}
+                className="text-film-muted hover:text-film-text p-1"
+            >
+                <Edit3 size={14} />
+            </button>
+            <button onClick={onDelete} className="text-film-muted hover:text-film-danger p-1">
+                <Trash2 size={14} />
+            </button>
+        </div>
+    )
+}
+
 interface SimpleRowProps {
-    item: Camera | Lens
+    item: Lens
     onUpdate: (patch: { name: string }) => void
     onDelete: () => void
 }
@@ -151,18 +221,20 @@ export function MasterDataScreen() {
     // Add form state
     const [newName, setNewName] = useState('')
     const [newIso, setNewIso] = useState('400')
+    const [newBrand, setNewBrand] = useState('')
 
     function handleAdd() {
         if (!newName.trim()) return
         if (tab === 'films') {
             addFilm({ name: newName.trim(), iso: parseInt(newIso) || 400 })
         } else if (tab === 'cameras') {
-            addCamera({ name: newName.trim() })
+            addCamera({ name: newName.trim(), ...(newBrand.trim() && { brand: newBrand.trim() }) })
         } else {
             addLens({ name: newName.trim() })
         }
         setNewName('')
         setNewIso('400')
+        setNewBrand('')
     }
 
     const tabs: { key: Tab; label: string; count: number }[] = [
@@ -194,6 +266,7 @@ export function MasterDataScreen() {
                             setTab(key)
                             setNewName('')
                             setNewIso('400')
+                            setNewBrand('')
                         }}
                         className={[
                             'flex-1 py-3 font-mono text-xs uppercase tracking-widest transition-colors',
@@ -261,6 +334,15 @@ export function MasterDataScreen() {
                             className="w-20"
                         />
                     )}
+                    {tab === 'cameras' && (
+                        <input
+                            className="w-28 bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors"
+                            placeholder="제조사"
+                            value={newBrand}
+                            onChange={(e) => setNewBrand(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                        />
+                    )}
                     <button
                         onClick={handleAdd}
                         disabled={!newName.trim()}
@@ -294,9 +376,9 @@ export function MasterDataScreen() {
                             [...cameras]
                                 .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
                                 .map((cam) => (
-                                    <SimpleRow
+                                    <CameraRow
                                         key={cam.id}
-                                        item={cam}
+                                        camera={cam}
                                         onUpdate={(p) => updateCamera(cam.id, p)}
                                         onDelete={() => deleteCamera(cam.id)}
                                     />
