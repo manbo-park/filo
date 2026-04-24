@@ -316,10 +316,10 @@ export function MasterDataScreen() {
                         className="flex-1 bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors"
                         placeholder={
                             tab === 'films'
-                                ? '예: Kodak Gold 200'
+                                ? 'e.g., Kodak Gold 200'
                                 : tab === 'cameras'
-                                  ? '예: Leica M6'
-                                  : '예: 35mm f/2'
+                                  ? 'e.g., Leica M6'
+                                  : 'e.g., Summicron 35mm f/2'
                         }
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
@@ -328,7 +328,7 @@ export function MasterDataScreen() {
                     {tab === 'films' && (
                         <Input
                             type="number"
-                            placeholder="ISO"
+                            placeholder="e.g., 400"
                             value={newIso}
                             onChange={(e) => setNewIso(e.target.value)}
                             className="w-20"
@@ -337,7 +337,7 @@ export function MasterDataScreen() {
                     {tab === 'cameras' && (
                         <input
                             className="w-28 bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors"
-                            placeholder="제조사"
+                            placeholder="e.g., Leica"
                             value={newBrand}
                             onChange={(e) => setNewBrand(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
