@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Trash2, Play, Plus, Pencil, Camera, FileText } from 'lucide-react'
+import { Trash2, Play, Plus, Pencil, Camera, FileText, ClipboardCopy, Check } from 'lucide-react'
 import { PageLayout } from '@/components/ui/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -68,6 +68,8 @@ export function RollDetailScreen() {
     const [memo, setMemo] = useState('')
     const [tsDate, setTsDate] = useState('')
     const [tsTime, setTsTime] = useState('')
+    const [copied, setCopied] = useState(false)
+    const [toastFading, setToastFading] = useState(false)
     const [showDeleteRoll, setShowDeleteRoll] = useState(false)
     const [showResumeConfirm, setShowResumeConfirm] = useState(false)
     const [showAddFrame, setShowAddFrame] = useState(false)
@@ -183,6 +185,62 @@ export function RollDetailScreen() {
         setShowEditRoll(false)
     }
 
+    async function copyFixifPayload() {
+        if (!roll) return
+        const frames = roll.frames.map((frame) => {
+            const lens = lenses.find((l) => l.id === frame.lensId)
+            const apertureNum = frame.aperture
+                ? parseFloat(frame.aperture.replace('f/', ''))
+                : undefined
+            const entry: Record<string, unknown> = { n: frame.frameNumber }
+            if (frame.timestamp) entry.t = frame.timestamp
+            if (lens) entry.lens = lens.name
+            if (apertureNum != null && !isNaN(apertureNum)) entry.aperture = apertureNum
+            if (frame.shutterSpeed) entry.shutter = frame.shutterSpeed
+            if (frame.memo) entry.memo = frame.memo
+            return entry
+        })
+
+        const payload = {
+            v: 1,
+            roll: {
+                camera: { make: camera?.brand ?? '', model: camera?.name ?? '' },
+                film: { name: film?.name ?? '', iso: film?.iso ?? 0 },
+                frames,
+            },
+        }
+
+        const json = JSON.stringify(payload)
+        const encoded = new TextEncoder().encode(json)
+        const cs = new CompressionStream('gzip')
+        const writer = cs.writable.getWriter()
+        writer.write(encoded)
+        writer.close()
+        const chunks: Uint8Array[] = []
+        const reader = cs.readable.getReader()
+        for (;;) {
+            const { done, value } = await reader.read()
+            if (done) break
+            chunks.push(value)
+        }
+        const total = chunks.reduce((s, c) => s + c.length, 0)
+        const buf = new Uint8Array(total)
+        let offset = 0
+        for (const chunk of chunks) {
+            buf.set(chunk, offset)
+            offset += chunk.length
+        }
+        let binary = ''
+        for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i])
+        const result = 'FIXIF1:' + btoa(binary)
+
+        await navigator.clipboard.writeText(result)
+        setCopied(true)
+        setToastFading(false)
+        setTimeout(() => setToastFading(true), 1800)
+        setTimeout(() => setCopied(false), 2400)
+    }
+
     function handleInsertFrame() {
         const newId = insertFrame(roll!.id, addFrameAt)
         setShowAddFrame(false)
@@ -197,6 +255,13 @@ export function RollDetailScreen() {
             showBack
             rightAction={
                 <div className="flex items-center">
+                    <button
+                        onClick={copyFixifPayload}
+                        className="p-2 text-film-muted hover:text-film-text transition-colors"
+                        title="EXIF 데이터 복사"
+                    >
+                        {copied ? <Check size={16} className="text-film-accent" /> : <ClipboardCopy size={16} />}
+                    </button>
                     <button
                         onClick={openEditRoll}
                         className="p-2 text-film-muted hover:text-film-text transition-colors"
@@ -513,6 +578,18 @@ export function RollDetailScreen() {
                     </div>
                 </div>
             </Modal>
+
+            {/* Copy success toast */}
+            {copied && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+                    <div className={`animate-slide-up flex items-center gap-2 bg-film-surface border border-film-border rounded-full px-4 py-2 shadow-lg transition-opacity duration-500 ${toastFading ? 'opacity-0' : 'opacity-100'}`}>
+                        <Check size={13} className="text-film-accent shrink-0" />
+                        <span className="font-mono text-xs text-film-text whitespace-nowrap">
+                            클립보드에 복사됨
+                        </span>
+                    </div>
+                </div>
+            )}
 
             {/* Delete roll confirmation */}
             <Modal
