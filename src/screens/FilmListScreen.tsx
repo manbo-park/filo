@@ -1,59 +1,59 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Upload, Download, Film, Trash2, AlertTriangle } from 'lucide-react'
-import { PageLayout } from '@/components/ui/PageLayout'
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-import { Select } from '@/components/ui/Select'
-import { RollCard } from '@/components/roll/RollCard'
-import { useRollStore } from '@/store/rollStore'
-import { useMasterDataStore } from '@/store/masterDataStore'
-import type { ExportData } from '@/types'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Upload, Download, Film, Trash2, AlertTriangle } from 'lucide-react';
+import { PageLayout } from '@/components/ui/PageLayout';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Select } from '@/components/ui/Select';
+import { RollCard } from '@/components/roll/RollCard';
+import { useRollStore } from '@/store/rollStore';
+import { useMasterDataStore } from '@/store/masterDataStore';
+import type { ExportData } from '@/types';
 
 const FRAME_COUNT_OPTIONS = [
     { value: '24', label: '24컷' },
     { value: '36', label: '36컷' },
     { value: '48', label: '48컷' },
     { value: '72', label: '72컷' },
-]
+];
 
 export function FilmListScreen() {
-    const navigate = useNavigate()
-    const { rolls, startRoll, importRolls, clearAll: clearRolls } = useRollStore()
-    const { films, cameras, importMasterData } = useMasterDataStore()
+    const navigate = useNavigate();
+    const { rolls, startRoll, importRolls, clearAll: clearRolls } = useRollStore();
+    const { films, cameras, importMasterData } = useMasterDataStore();
 
-    const [showNewRoll, setShowNewRoll] = useState(false)
-    const [filmId, setFilmId] = useState('')
-    const [cameraId, setCameraId] = useState('')
-    const [maxFrames, setMaxFrames] = useState('36')
-    const [errors, setErrors] = useState<Record<string, string>>({})
+    const [showNewRoll, setShowNewRoll] = useState(false);
+    const [filmId, setFilmId] = useState('');
+    const [cameraId, setCameraId] = useState('');
+    const [maxFrames, setMaxFrames] = useState('36');
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const [showImportSuccess, setShowImportSuccess] = useState(false)
-    const [importError, setImportError] = useState<string | null>(null)
-    const [confirmClear, setConfirmClear] = useState(false)
+    const [showImportSuccess, setShowImportSuccess] = useState(false);
+    const [importError, setImportError] = useState<string | null>(null);
+    const [confirmClear, setConfirmClear] = useState(false);
 
     const byDate = (a: (typeof rolls)[0], b: (typeof rolls)[0]) =>
-        new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+        new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime();
 
-    const activeRolls = rolls.filter((r) => r.status === 'active').sort(byDate)
-    const finishedRolls = rolls.filter((r) => r.status === 'finished').sort(byDate)
+    const activeRolls = rolls.filter((r) => r.status === 'active').sort(byDate);
+    const finishedRolls = rolls.filter((r) => r.status === 'finished').sort(byDate);
 
     function validateAndStart() {
-        const newErrors: Record<string, string> = {}
-        if (!filmId) newErrors.film = '필름을 선택하세요'
-        if (!cameraId) newErrors.camera = '카메라를 선택하세요'
+        const newErrors: Record<string, string> = {};
+        if (!filmId) newErrors.film = '필름을 선택하세요';
+        if (!cameraId) newErrors.camera = '카메라를 선택하세요';
         if (Object.keys(newErrors).length) {
-            setErrors(newErrors)
-            return
+            setErrors(newErrors);
+            return;
         }
-        startRoll({ filmId, cameraId, maxFrames: parseInt(maxFrames) })
-        setShowNewRoll(false)
-        navigate('/shoot', { replace: true })
+        startRoll({ filmId, cameraId, maxFrames: parseInt(maxFrames) });
+        setShowNewRoll(false);
+        navigate('/shoot', { replace: true });
     }
 
     function handleExport() {
-        const masterData = useMasterDataStore.getState()
-        const rollState = useRollStore.getState()
+        const masterData = useMasterDataStore.getState();
+        const rollState = useRollStore.getState();
         const data: ExportData = {
             version: 1,
             exportedAt: new Date().toISOString(),
@@ -64,55 +64,55 @@ export function FilmListScreen() {
             },
             rolls: rollState.rolls,
             activeRollId: rollState.activeRollId,
-        }
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `filo-export-${new Date().toISOString().split('T')[0]}.json`
-        a.click()
-        URL.revokeObjectURL(url)
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `filo-export-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     function parseImportData(json: string): ExportData {
-        const data = JSON.parse(json) as Record<string, unknown>
-        if (data?.version !== 1) throw new Error('지원하지 않는 버전입니다.')
-        const md = data.masterData as Record<string, unknown> | undefined
+        const data = JSON.parse(json) as Record<string, unknown>;
+        if (data?.version !== 1) throw new Error('지원하지 않는 버전입니다.');
+        const md = data.masterData as Record<string, unknown> | undefined;
         if (
             !md ||
             !Array.isArray(md.films) ||
             !Array.isArray(md.cameras) ||
             !Array.isArray(md.lenses)
         )
-            throw new Error('masterData 형식이 올바르지 않습니다.')
-        if (!Array.isArray(data.rolls)) throw new Error('rolls 형식이 올바르지 않습니다.')
-        return data as unknown as ExportData
+            throw new Error('masterData 형식이 올바르지 않습니다.');
+        if (!Array.isArray(data.rolls)) throw new Error('rolls 형식이 올바르지 않습니다.');
+        return data as unknown as ExportData;
     }
 
     function handleImport() {
-        const input = document.createElement('input')
-        input.type = 'file'
-        input.accept = '.json'
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
         input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0]
-            if (!file) return
-            const reader = new FileReader()
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
             reader.onload = (ev) => {
                 try {
-                    const data = parseImportData(ev.target?.result as string)
-                    importMasterData(data.masterData)
-                    importRolls(data.rolls, data.activeRollId)
-                    setShowImportSuccess(true)
+                    const data = parseImportData(ev.target?.result as string);
+                    importMasterData(data.masterData);
+                    importRolls(data.rolls, data.activeRollId);
+                    setShowImportSuccess(true);
                 } catch (err) {
                     setImportError(
-                        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'
-                    )
+                        err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.',
+                    );
                 }
-            }
-            reader.onerror = () => setImportError('파일을 읽는 중 오류가 발생했습니다.')
-            reader.readAsText(file)
-        }
-        input.click()
+            };
+            reader.onerror = () => setImportError('파일을 읽는 중 오류가 발생했습니다.');
+            reader.readAsText(file);
+        };
+        input.click();
     }
 
     return (
@@ -152,8 +152,8 @@ export function FilmListScreen() {
                     </span>
                     <button
                         onClick={() => {
-                            clearRolls()
-                            setConfirmClear(false)
+                            clearRolls();
+                            setConfirmClear(false);
                         }}
                         className="font-mono text-xs text-film-danger hover:text-red-400 transition-colors px-2 py-1"
                     >
@@ -175,11 +175,11 @@ export function FilmListScreen() {
                     size="lg"
                     fullWidth
                     onClick={() => {
-                        setErrors({})
-                        setFilmId('')
-                        setCameraId('')
-                        setMaxFrames('36')
-                        setShowNewRoll(true)
+                        setErrors({});
+                        setFilmId('');
+                        setCameraId('');
+                        setMaxFrames('36');
+                        setShowNewRoll(true);
                     }}
                 >
                     + 새 롤 시작
@@ -241,8 +241,8 @@ export function FilmListScreen() {
                                 size="sm"
                                 className="mt-4"
                                 onClick={() => {
-                                    setShowNewRoll(false)
-                                    navigate('/master')
+                                    setShowNewRoll(false);
+                                    navigate('/master');
                                 }}
                             >
                                 기본 데이터 등록하기
@@ -255,8 +255,8 @@ export function FilmListScreen() {
                                 placeholder="필름 선택..."
                                 value={filmId}
                                 onChange={(e) => {
-                                    setFilmId(e.target.value)
-                                    setErrors((p) => ({ ...p, film: '' }))
+                                    setFilmId(e.target.value);
+                                    setErrors((p) => ({ ...p, film: '' }));
                                 }}
                                 options={films.map((f) => ({
                                     value: f.id,
@@ -269,8 +269,8 @@ export function FilmListScreen() {
                                 placeholder="카메라 선택..."
                                 value={cameraId}
                                 onChange={(e) => {
-                                    setCameraId(e.target.value)
-                                    setErrors((p) => ({ ...p, camera: '' }))
+                                    setCameraId(e.target.value);
+                                    setErrors((p) => ({ ...p, camera: '' }));
                                 }}
                                 options={cameras.map((c) => ({ value: c.id, label: c.name }))}
                                 error={errors.camera}
@@ -332,5 +332,5 @@ export function FilmListScreen() {
                 </div>
             </Modal>
         </PageLayout>
-    )
+    );
 }

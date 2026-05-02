@@ -1,10 +1,10 @@
-import type { SelectHTMLAttributes } from 'react'
+import type { SelectHTMLAttributes } from 'react';
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-    label?: string
-    error?: string
-    options: { value: string; label: string }[]
-    placeholder?: string
+    label?: string;
+    error?: string;
+    options: { value: string; label: string }[];
+    placeholder?: string;
 }
 
 export function Select({
@@ -16,7 +16,7 @@ export function Select({
     id,
     ...props
 }: SelectProps) {
-    const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
+    const selectId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
 
     return (
         <div className="flex flex-col gap-1.5">
@@ -55,5 +55,5 @@ export function Select({
             </select>
             {error && <span className="text-film-danger text-xs font-mono">{error}</span>}
         </div>
-    )
+    );
 }

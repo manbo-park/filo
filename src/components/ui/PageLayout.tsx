@@ -1,15 +1,15 @@
-import { type ReactNode, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Database } from 'lucide-react'
+import { type ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Database } from 'lucide-react';
 
 interface PageLayoutProps {
-    title: ReactNode
-    children: ReactNode
-    showBack?: boolean
-    onBack?: () => void
-    rightAction?: ReactNode
-    className?: string
-    noScroll?: boolean
+    title: ReactNode;
+    children: ReactNode;
+    showBack?: boolean;
+    onBack?: () => void;
+    rightAction?: ReactNode;
+    className?: string;
+    noScroll?: boolean;
 }
 
 export function PageLayout({
@@ -21,19 +21,19 @@ export function PageLayout({
     className = '',
     noScroll = false,
 }: PageLayoutProps) {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (!noScroll) return
-        document.body.style.overflow = 'hidden'
-        document.body.style.position = 'fixed'
-        document.body.style.width = '100%'
+        if (!noScroll) return;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
         return () => {
-            document.body.style.overflow = ''
-            document.body.style.position = ''
-            document.body.style.width = ''
-        }
-    }, [noScroll])
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+        };
+    }, [noScroll]);
 
     return (
         <div className="min-h-screen bg-film-bg">
@@ -71,5 +71,5 @@ export function PageLayout({
             {/* Content — pt-header pushes content below the fixed header */}
             <main className={`pt-header ${className}`}>{children}</main>
         </div>
-    )
+    );
 }

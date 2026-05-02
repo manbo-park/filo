@@ -1,37 +1,37 @@
-import { useNavigate } from 'react-router-dom'
-import { Film, Camera, FileText } from 'lucide-react'
-import type { Roll } from '@/types'
-import { useMasterDataStore } from '@/store/masterDataStore'
+import { useNavigate } from 'react-router-dom';
+import { Film, Camera, FileText } from 'lucide-react';
+import type { Roll } from '@/types';
+import { useMasterDataStore } from '@/store/masterDataStore';
 
 interface RollCardProps {
-    roll: Roll
+    roll: Roll;
 }
 
 export function RollCard({ roll }: RollCardProps) {
-    const navigate = useNavigate()
-    const { films, cameras } = useMasterDataStore()
+    const navigate = useNavigate();
+    const { films, cameras } = useMasterDataStore();
 
-    const film = films.find((f) => f.id === roll.filmId)
-    const camera = cameras.find((c) => c.id === roll.cameraId)
+    const film = films.find((f) => f.id === roll.filmId);
+    const camera = cameras.find((c) => c.id === roll.cameraId);
 
     const fmt = (iso: string) =>
         new Date(iso).toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-        })
+        });
 
-    const startStr = fmt(roll.startedAt)
-    const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null
+    const startStr = fmt(roll.startedAt);
+    const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null;
 
     const dateStr =
         roll.status === 'active'
             ? `${startStr} ~`
             : endStr && endStr !== startStr
               ? `${startStr} ~ ${endStr}`
-              : startStr
+              : startStr;
 
-    const progress = roll.frames.length
+    const progress = roll.frames.length;
 
     return (
         <button
@@ -65,24 +65,27 @@ export function RollCard({ roll }: RollCardProps) {
                         </div>
                     )}
                 </div>
-
             </div>
 
             {/* Progress bar */}
             <div className="mt-3">
                 <div className="flex justify-end mb-1">
                     <span className="font-mono">
-                        <span className="text-film-text text-base font-semibold">{String(progress).padStart(2, '0')}</span>
+                        <span className="text-film-text text-base font-semibold">
+                            {String(progress).padStart(2, '0')}
+                        </span>
                         <span className="text-film-muted text-xs">/{roll.maxFrames}</span>
                     </span>
                 </div>
                 <div className="h-0.5 bg-film-border rounded-full overflow-hidden relative">
                     <div
                         className="absolute inset-0 accent-gradient-bg transition-all duration-300"
-                        style={{ clipPath: `inset(0 ${100 - Math.min((progress / roll.maxFrames) * 100, 100)}% 0 0)` }}
+                        style={{
+                            clipPath: `inset(0 ${100 - Math.min((progress / roll.maxFrames) * 100, 100)}% 0 0)`,
+                        }}
                     />
                 </div>
             </div>
         </button>
-    )
+    );
 }

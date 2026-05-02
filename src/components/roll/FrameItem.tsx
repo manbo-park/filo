@@ -1,31 +1,31 @@
-import { Clock, FileText, Search } from 'lucide-react'
-import type { Frame } from '@/types'
-import { useMasterDataStore } from '@/store/masterDataStore'
+import { Clock, FileText, Search } from 'lucide-react';
+import type { Frame } from '@/types';
+import { useMasterDataStore } from '@/store/masterDataStore';
 
 interface FrameItemProps {
-    frame: Frame
-    onEdit: () => void
+    frame: Frame;
+    onEdit: () => void;
 }
 
 export function FrameItem({ frame, onEdit }: FrameItemProps) {
-    const lens = useMasterDataStore((s) => s.lenses.find((l) => l.id === frame.lensId))
+    const lens = useMasterDataStore((s) => s.lenses.find((l) => l.id === frame.lensId));
     const timestampStr = (() => {
-        if (!frame.timestamp) return null
-        const time = new Date(frame.timestamp)
+        if (!frame.timestamp) return null;
+        const time = new Date(frame.timestamp);
         const timeStr = time.toLocaleTimeString('ko-KR', {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
             hour12: false,
-        })
+        });
         const dateStr = time.toLocaleDateString('ko-KR', {
             month: 'short',
             day: 'numeric',
-        })
-        return `${dateStr} ${timeStr}`
-    })()
+        });
+        return `${dateStr} ${timeStr}`;
+    })();
 
-    const hasMetadata = frame.lensId || frame.aperture || frame.shutterSpeed || frame.memo
+    const hasMetadata = frame.lensId || frame.aperture || frame.shutterSpeed || frame.memo;
 
     return (
         <button
@@ -79,5 +79,5 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
                 )}
             </div>
         </button>
-    )
+    );
 }

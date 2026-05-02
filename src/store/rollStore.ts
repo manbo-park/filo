@@ -1,39 +1,39 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import { nanoid } from 'nanoid'
-import { idbStorage } from '@/lib/idb'
-import type { Roll, Frame } from '@/types'
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { nanoid } from 'nanoid';
+import { idbStorage } from '@/lib/idb';
+import type { Roll, Frame } from '@/types';
 
 interface RollState {
-    rolls: Roll[]
-    activeRollId: string | null
+    rolls: Roll[];
+    activeRollId: string | null;
 
-    startRoll: (params: { filmId: string; cameraId: string; maxFrames: number }) => string // returns new roll id
+    startRoll: (params: { filmId: string; cameraId: string; maxFrames: number }) => string; // returns new roll id
 
-    finishRoll: (rollId: string) => void
-    resumeRoll: (rollId: string) => void
-    deleteRoll: (rollId: string) => void
+    finishRoll: (rollId: string) => void;
+    resumeRoll: (rollId: string) => void;
+    deleteRoll: (rollId: string) => void;
 
-    setActiveRollId: (rollId: string) => void
+    setActiveRollId: (rollId: string) => void;
     updateRoll: (
         rollId: string,
-        patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames' | 'memo'>>
-    ) => void
-    setCurrentLens: (rollId: string, lensId: string | undefined) => void
-    recordFrame: (rollId: string) => void
+        patch: Partial<Pick<Roll, 'filmId' | 'cameraId' | 'maxFrames' | 'memo'>>,
+    ) => void;
+    setCurrentLens: (rollId: string, lensId: string | undefined) => void;
+    recordFrame: (rollId: string) => void;
     updateFrame: (
         rollId: string,
         frameId: string,
-        patch: Partial<Pick<Frame, 'lensId' | 'aperture' | 'shutterSpeed' | 'memo' | 'timestamp'>>
-    ) => void
-    deleteFrame: (rollId: string, frameId: string) => void
-    insertFrame: (rollId: string, atFrameNumber: number) => string // returns new frame id
+        patch: Partial<Pick<Frame, 'lensId' | 'aperture' | 'shutterSpeed' | 'memo' | 'timestamp'>>,
+    ) => void;
+    deleteFrame: (rollId: string, frameId: string) => void;
+    insertFrame: (rollId: string, atFrameNumber: number) => string; // returns new frame id
 
     // Bulk import (replaces all rolls)
-    importRolls: (rolls: Roll[], activeRollId: string | null) => void
+    importRolls: (rolls: Roll[], activeRollId: string | null) => void;
 
     // 전체 삭제
-    clearAll: () => void
+    clearAll: () => void;
 }
 
 export const useRollStore = create<RollState>()(
@@ -43,7 +43,7 @@ export const useRollStore = create<RollState>()(
             activeRollId: null,
 
             startRoll: ({ filmId, cameraId, maxFrames }) => {
-                const id = nanoid()
+                const id = nanoid();
                 const newRoll: Roll = {
                     id,
                     filmId,
@@ -52,12 +52,12 @@ export const useRollStore = create<RollState>()(
                     startedAt: new Date().toISOString(),
                     frames: [],
                     status: 'active',
-                }
+                };
                 set((s) => ({
                     rolls: [...s.rolls, newRoll],
                     activeRollId: id,
-                }))
-                return id
+                }));
+                return id;
             },
 
             finishRoll: (rollId) =>
@@ -65,7 +65,7 @@ export const useRollStore = create<RollState>()(
                     rolls: s.rolls.map((r) =>
                         r.id === rollId
                             ? { ...r, status: 'finished', finishedAt: new Date().toISOString() }
-                            : r
+                            : r,
                     ),
                     activeRollId: s.activeRollId === rollId ? null : s.activeRollId,
                 })),
@@ -73,7 +73,7 @@ export const useRollStore = create<RollState>()(
             resumeRoll: (rollId) =>
                 set((s) => ({
                     rolls: s.rolls.map((r) =>
-                        r.id === rollId ? { ...r, status: 'active', finishedAt: undefined } : r
+                        r.id === rollId ? { ...r, status: 'active', finishedAt: undefined } : r,
                     ),
                     activeRollId: rollId,
                 })),
@@ -94,25 +94,25 @@ export const useRollStore = create<RollState>()(
             setCurrentLens: (rollId, lensId) =>
                 set((s) => ({
                     rolls: s.rolls.map((r) =>
-                        r.id === rollId ? { ...r, currentLensId: lensId } : r
+                        r.id === rollId ? { ...r, currentLensId: lensId } : r,
                     ),
                 })),
 
             recordFrame: (rollId) => {
-                const roll = get().rolls.find((r) => r.id === rollId)
-                if (!roll) return
+                const roll = get().rolls.find((r) => r.id === rollId);
+                if (!roll) return;
 
                 const frame: Frame = {
                     id: nanoid(),
                     frameNumber: roll.frames.length + 1,
                     timestamp: new Date().toISOString(),
                     lensId: roll.currentLensId,
-                }
+                };
                 set((s) => ({
                     rolls: s.rolls.map((r) =>
-                        r.id === rollId ? { ...r, frames: [...r.frames, frame] } : r
+                        r.id === rollId ? { ...r, frames: [...r.frames, frame] } : r,
                     ),
-                }))
+                }));
             },
 
             updateFrame: (rollId, frameId, patch) =>
@@ -122,10 +122,10 @@ export const useRollStore = create<RollState>()(
                             ? {
                                   ...r,
                                   frames: r.frames.map((f) =>
-                                      f.id === frameId ? { ...f, ...patch } : f
+                                      f.id === frameId ? { ...f, ...patch } : f,
                                   ),
                               }
-                            : r
+                            : r,
                     ),
                 })),
 
@@ -139,19 +139,19 @@ export const useRollStore = create<RollState>()(
                                       .filter((f) => f.id !== frameId)
                                       .map((f, i) => ({ ...f, frameNumber: i + 1 })),
                               }
-                            : r
+                            : r,
                     ),
                 })),
 
             insertFrame: (rollId, atFrameNumber) => {
-                const roll = get().rolls.find((r) => r.id === rollId)
-                if (!roll) return ''
+                const roll = get().rolls.find((r) => r.id === rollId);
+                if (!roll) return '';
 
-                const newId = nanoid()
+                const newId = nanoid();
                 const newFrame: Frame = {
                     id: newId,
                     frameNumber: atFrameNumber,
-                }
+                };
 
                 set((s) => ({
                     rolls: s.rolls.map((r) =>
@@ -166,11 +166,11 @@ export const useRollStore = create<RollState>()(
                                           .map((f) => ({ ...f, frameNumber: f.frameNumber + 1 })),
                                   ],
                               }
-                            : r
+                            : r,
                     ),
-                }))
+                }));
 
-                return newId
+                return newId;
             },
 
             importRolls: (rolls, activeRollId) => set({ rolls, activeRollId }),
@@ -180,6 +180,6 @@ export const useRollStore = create<RollState>()(
         {
             name: 'filo-rolls',
             storage: createJSONStorage(() => idbStorage),
-        }
-    )
-)
+        },
+    ),
+);

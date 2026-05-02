@@ -1,25 +1,25 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { CheckCircle, List, Film, Camera, RefreshCw } from 'lucide-react'
-import { PageLayout } from '@/components/ui/PageLayout'
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-import { useRollStore } from '@/store/rollStore'
-import { useMasterDataStore } from '@/store/masterDataStore'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircle, List, Film, Camera, RefreshCw } from 'lucide-react';
+import { PageLayout } from '@/components/ui/PageLayout';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { useRollStore } from '@/store/rollStore';
+import { useMasterDataStore } from '@/store/masterDataStore';
 
 export function ShootingScreen() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { rolls, activeRollId, recordFrame, deleteFrame, finishRoll, setCurrentLens } =
-        useRollStore()
-    const { films, cameras, lenses } = useMasterDataStore()
-    const [showFinishConfirm, setShowFinishConfirm] = useState(false)
-    const [showUndoConfirm, setShowUndoConfirm] = useState(false)
-    const [showLensSwap, setShowLensSwap] = useState(false)
-    const [showOverageModal, setShowOverageModal] = useState(false)
-    const [hasShownOverageModal, setHasShownOverageModal] = useState(false)
-    const [justRecorded, setJustRecorded] = useState(false)
+        useRollStore();
+    const { films, cameras, lenses } = useMasterDataStore();
+    const [showFinishConfirm, setShowFinishConfirm] = useState(false);
+    const [showUndoConfirm, setShowUndoConfirm] = useState(false);
+    const [showLensSwap, setShowLensSwap] = useState(false);
+    const [showOverageModal, setShowOverageModal] = useState(false);
+    const [hasShownOverageModal, setHasShownOverageModal] = useState(false);
+    const [justRecorded, setJustRecorded] = useState(false);
 
-    const activeRoll = rolls.find((r) => r.id === activeRollId && r.status === 'active')
+    const activeRoll = rolls.find((r) => r.id === activeRollId && r.status === 'active');
 
     if (!activeRoll) {
         return (
@@ -31,39 +31,39 @@ export function ShootingScreen() {
                     </Button>
                 </div>
             </PageLayout>
-        )
+        );
     }
 
-    const film = films.find((f) => f.id === activeRoll.filmId)
-    const camera = cameras.find((c) => c.id === activeRoll.cameraId)
-    const currentLens = lenses.find((l) => l.id === activeRoll.currentLensId)
+    const film = films.find((f) => f.id === activeRoll.filmId);
+    const camera = cameras.find((c) => c.id === activeRoll.cameraId);
+    const currentLens = lenses.find((l) => l.id === activeRoll.currentLensId);
 
-    const frameCount = activeRoll.frames.length
-    const maxFrames = activeRoll.maxFrames
-    const isOverMax = frameCount >= maxFrames
-    const nextFrame = frameCount + 1
-    const progressPct = Math.min((frameCount / maxFrames) * 100, 100)
+    const frameCount = activeRoll.frames.length;
+    const maxFrames = activeRoll.maxFrames;
+    const isOverMax = frameCount >= maxFrames;
+    const nextFrame = frameCount + 1;
+    const progressPct = Math.min((frameCount / maxFrames) * 100, 100);
 
     function handleRecord() {
-        recordFrame(activeRoll!.id)
-        setJustRecorded(true)
-        setTimeout(() => setJustRecorded(false), 600)
+        recordFrame(activeRoll!.id);
+        setJustRecorded(true);
+        setTimeout(() => setJustRecorded(false), 600);
         if (frameCount + 1 === maxFrames && !hasShownOverageModal) {
-            setShowOverageModal(true)
-            setHasShownOverageModal(true)
+            setShowOverageModal(true);
+            setHasShownOverageModal(true);
         }
     }
 
     function handleUndo() {
-        if (frameCount === 0) return
-        const lastFrame = activeRoll!.frames[activeRoll!.frames.length - 1]
-        deleteFrame(activeRoll!.id, lastFrame.id)
+        if (frameCount === 0) return;
+        const lastFrame = activeRoll!.frames[activeRoll!.frames.length - 1];
+        deleteFrame(activeRoll!.id, lastFrame.id);
     }
 
     function handleFinish() {
-        finishRoll(activeRoll!.id)
-        setShowFinishConfirm(false)
-        navigate('/rolls', { replace: true })
+        finishRoll(activeRoll!.id);
+        setShowFinishConfirm(false);
+        navigate('/rolls', { replace: true });
     }
 
     return (
@@ -225,8 +225,8 @@ export function ShootingScreen() {
                             variant="primary"
                             fullWidth
                             onClick={() => {
-                                setShowOverageModal(false)
-                                setShowFinishConfirm(true)
+                                setShowOverageModal(false);
+                                setShowFinishConfirm(true);
                             }}
                         >
                             마무리
@@ -284,8 +284,8 @@ export function ShootingScreen() {
                             variant="primary"
                             fullWidth
                             onClick={() => {
-                                handleUndo()
-                                setShowUndoConfirm(false)
+                                handleUndo();
+                                setShowUndoConfirm(false);
                             }}
                         >
                             되돌리기
@@ -303,13 +303,13 @@ export function ShootingScreen() {
                     ) : (
                         <>
                             {lenses.map((lens) => {
-                                const isSelected = lens.id === activeRoll.currentLensId
+                                const isSelected = lens.id === activeRoll.currentLensId;
                                 return (
                                     <button
                                         key={lens.id}
                                         onClick={() => {
-                                            setCurrentLens(activeRoll.id, lens.id)
-                                            setShowLensSwap(false)
+                                            setCurrentLens(activeRoll.id, lens.id);
+                                            setShowLensSwap(false);
                                         }}
                                         className={[
                                             'w-full text-left px-4 py-3 rounded-lg font-mono text-sm transition-colors',
@@ -323,13 +323,13 @@ export function ShootingScreen() {
                                             <span className="ml-2 text-xs text-film-accent">✓</span>
                                         )}
                                     </button>
-                                )
+                                );
                             })}
                             <div className="border-t border-film-border mt-1 pt-1">
                                 <button
                                     onClick={() => {
-                                        setCurrentLens(activeRoll.id, undefined)
-                                        setShowLensSwap(false)
+                                        setCurrentLens(activeRoll.id, undefined);
+                                        setShowLensSwap(false);
                                     }}
                                     className="w-full text-left px-4 py-3 rounded-lg font-mono text-sm text-film-muted hover:bg-film-surface transition-colors"
                                 >
@@ -341,5 +341,5 @@ export function ShootingScreen() {
                 </div>
             </Modal>
         </PageLayout>
-    )
+    );
 }

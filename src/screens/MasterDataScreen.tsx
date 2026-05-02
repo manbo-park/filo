@@ -1,28 +1,28 @@
-import { useState } from 'react'
-import { PlusCircle, Trash2, Edit3, Check, X, AlertTriangle } from 'lucide-react'
-import { PageLayout } from '@/components/ui/PageLayout'
-import { Input } from '@/components/ui/Input'
-import { useMasterDataStore } from '@/store/masterDataStore'
-import type { Film, Camera, Lens } from '@/types'
+import { useState } from 'react';
+import { PlusCircle, Trash2, Edit3, Check, X, AlertTriangle } from 'lucide-react';
+import { PageLayout } from '@/components/ui/PageLayout';
+import { Input } from '@/components/ui/Input';
+import { useMasterDataStore } from '@/store/masterDataStore';
+import type { Film, Camera, Lens } from '@/types';
 
-type Tab = 'films' | 'cameras' | 'lenses'
+type Tab = 'films' | 'cameras' | 'lenses';
 
 // ── Inline item editor ───────────────────────────────────────────────────────
 
 interface FilmRowProps {
-    film: Film
-    onUpdate: (patch: Partial<Omit<Film, 'id'>>) => void
-    onDelete: () => void
+    film: Film;
+    onUpdate: (patch: Partial<Omit<Film, 'id'>>) => void;
+    onDelete: () => void;
 }
 function FilmRow({ film, onUpdate, onDelete }: FilmRowProps) {
-    const [editing, setEditing] = useState(false)
-    const [name, setName] = useState(film.name)
-    const [iso, setIso] = useState(String(film.iso))
+    const [editing, setEditing] = useState(false);
+    const [name, setName] = useState(film.name);
+    const [iso, setIso] = useState(String(film.iso));
 
     function save() {
-        if (!name.trim()) return
-        onUpdate({ name: name.trim(), iso: parseInt(iso) || film.iso })
-        setEditing(false)
+        if (!name.trim()) return;
+        onUpdate({ name: name.trim(), iso: parseInt(iso) || film.iso });
+        setEditing(false);
     }
 
     if (editing) {
@@ -51,7 +51,7 @@ function FilmRow({ film, onUpdate, onDelete }: FilmRowProps) {
                     <X size={14} />
                 </button>
             </div>
-        )
+        );
     }
 
     return (
@@ -70,23 +70,23 @@ function FilmRow({ film, onUpdate, onDelete }: FilmRowProps) {
                 <Trash2 size={14} />
             </button>
         </div>
-    )
+    );
 }
 
 interface CameraRowProps {
-    camera: Camera
-    onUpdate: (patch: Partial<Omit<Camera, 'id'>>) => void
-    onDelete: () => void
+    camera: Camera;
+    onUpdate: (patch: Partial<Omit<Camera, 'id'>>) => void;
+    onDelete: () => void;
 }
 function CameraRow({ camera, onUpdate, onDelete }: CameraRowProps) {
-    const [editing, setEditing] = useState(false)
-    const [name, setName] = useState(camera.name)
-    const [brand, setBrand] = useState(camera.brand ?? '')
+    const [editing, setEditing] = useState(false);
+    const [name, setName] = useState(camera.name);
+    const [brand, setBrand] = useState(camera.brand ?? '');
 
     function save() {
-        if (!name.trim()) return
-        onUpdate({ name: name.trim(), brand: brand.trim() || undefined })
-        setEditing(false)
+        if (!name.trim()) return;
+        onUpdate({ name: name.trim(), brand: brand.trim() || undefined });
+        setEditing(false);
     }
 
     if (editing) {
@@ -119,7 +119,7 @@ function CameraRow({ camera, onUpdate, onDelete }: CameraRowProps) {
                     <X size={14} />
                 </button>
             </div>
-        )
+        );
     }
 
     return (
@@ -140,22 +140,22 @@ function CameraRow({ camera, onUpdate, onDelete }: CameraRowProps) {
                 <Trash2 size={14} />
             </button>
         </div>
-    )
+    );
 }
 
 interface SimpleRowProps {
-    item: Lens
-    onUpdate: (patch: { name: string }) => void
-    onDelete: () => void
+    item: Lens;
+    onUpdate: (patch: { name: string }) => void;
+    onDelete: () => void;
 }
 function SimpleRow({ item, onUpdate, onDelete }: SimpleRowProps) {
-    const [editing, setEditing] = useState(false)
-    const [name, setName] = useState(item.name)
+    const [editing, setEditing] = useState(false);
+    const [name, setName] = useState(item.name);
 
     function save() {
-        if (!name.trim()) return
-        onUpdate({ name: name.trim() })
-        setEditing(false)
+        if (!name.trim()) return;
+        onUpdate({ name: name.trim() });
+        setEditing(false);
     }
 
     if (editing) {
@@ -178,7 +178,7 @@ function SimpleRow({ item, onUpdate, onDelete }: SimpleRowProps) {
                     <X size={14} />
                 </button>
             </div>
-        )
+        );
     }
 
     return (
@@ -194,14 +194,14 @@ function SimpleRow({ item, onUpdate, onDelete }: SimpleRowProps) {
                 <Trash2 size={14} />
             </button>
         </div>
-    )
+    );
 }
 
 // ── Main Screen ──────────────────────────────────────────────────────────────
 
 export function MasterDataScreen() {
-    const [tab, setTab] = useState<Tab>('films')
-    const [confirmClear, setConfirmClear] = useState(false)
+    const [tab, setTab] = useState<Tab>('films');
+    const [confirmClear, setConfirmClear] = useState(false);
     const {
         films,
         cameras,
@@ -216,32 +216,32 @@ export function MasterDataScreen() {
         updateLens,
         deleteLens,
         clearAll,
-    } = useMasterDataStore()
+    } = useMasterDataStore();
 
     // Add form state
-    const [newName, setNewName] = useState('')
-    const [newIso, setNewIso] = useState('400')
-    const [newBrand, setNewBrand] = useState('')
+    const [newName, setNewName] = useState('');
+    const [newIso, setNewIso] = useState('400');
+    const [newBrand, setNewBrand] = useState('');
 
     function handleAdd() {
-        if (!newName.trim()) return
+        if (!newName.trim()) return;
         if (tab === 'films') {
-            addFilm({ name: newName.trim(), iso: parseInt(newIso) || 400 })
+            addFilm({ name: newName.trim(), iso: parseInt(newIso) || 400 });
         } else if (tab === 'cameras') {
-            addCamera({ name: newName.trim(), ...(newBrand.trim() && { brand: newBrand.trim() }) })
+            addCamera({ name: newName.trim(), ...(newBrand.trim() && { brand: newBrand.trim() }) });
         } else {
-            addLens({ name: newName.trim() })
+            addLens({ name: newName.trim() });
         }
-        setNewName('')
-        setNewIso('400')
-        setNewBrand('')
+        setNewName('');
+        setNewIso('400');
+        setNewBrand('');
     }
 
     const tabs: { key: Tab; label: string; count: number }[] = [
         { key: 'films', label: '필름', count: films.length },
         { key: 'cameras', label: '카메라', count: cameras.length },
         { key: 'lenses', label: '렌즈', count: lenses.length },
-    ]
+    ];
 
     return (
         <PageLayout
@@ -263,10 +263,10 @@ export function MasterDataScreen() {
                     <button
                         key={key}
                         onClick={() => {
-                            setTab(key)
-                            setNewName('')
-                            setNewIso('400')
-                            setNewBrand('')
+                            setTab(key);
+                            setNewName('');
+                            setNewIso('400');
+                            setNewBrand('');
                         }}
                         className={[
                             'flex-1 py-3 font-mono text-xs uppercase tracking-widest transition-colors',
@@ -293,8 +293,8 @@ export function MasterDataScreen() {
                     </span>
                     <button
                         onClick={() => {
-                            clearAll()
-                            setConfirmClear(false)
+                            clearAll();
+                            setConfirmClear(false);
                         }}
                         className="font-mono text-xs text-film-danger hover:text-red-400 transition-colors px-2 py-1"
                     >
@@ -402,7 +402,7 @@ export function MasterDataScreen() {
                 </div>
             </div>
         </PageLayout>
-    )
+    );
 }
 
 function EmptyState({ label }: { label: string }) {
@@ -410,5 +410,5 @@ function EmptyState({ label }: { label: string }) {
         <div className="py-8 text-center">
             <p className="text-film-border font-mono text-sm">{label}</p>
         </div>
-    )
+    );
 }

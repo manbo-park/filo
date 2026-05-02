@@ -1,26 +1,26 @@
-import { useEffect, type ReactNode } from 'react'
-import { X } from 'lucide-react'
+import { useEffect, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 
 interface ModalProps {
-    isOpen: boolean
-    onClose: () => void
-    title: string
-    children: ReactNode
+    isOpen: boolean;
+    onClose: () => void;
+    title: string;
+    children: ReactNode;
 }
 
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     useEffect(() => {
         if (isOpen) {
-            document.body.style.overflow = 'hidden'
+            document.body.style.overflow = 'hidden';
         } else {
-            document.body.style.overflow = ''
+            document.body.style.overflow = '';
         }
         return () => {
-            document.body.style.overflow = ''
-        }
-    }, [isOpen])
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
-    if (!isOpen) return null
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
@@ -54,5 +54,5 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
                 <div className="px-5 py-5 max-h-[70vh] overflow-y-auto">{children}</div>
             </div>
         </div>
-    )
+    );
 }

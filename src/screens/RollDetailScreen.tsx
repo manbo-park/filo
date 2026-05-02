@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { Trash2, Play, Plus, Pencil, Camera, FileText, ClipboardCopy, Check } from 'lucide-react'
-import { PageLayout } from '@/components/ui/PageLayout'
-import { Button } from '@/components/ui/Button'
-import { Modal } from '@/components/ui/Modal'
-import { Input } from '@/components/ui/Input'
-import { Select } from '@/components/ui/Select'
-import { FrameItem } from '@/components/roll/FrameItem'
-import { useRollStore } from '@/store/rollStore'
-import { useMasterDataStore } from '@/store/masterDataStore'
-import type { Frame } from '@/types'
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Trash2, Play, Plus, Pencil, Camera, FileText, ClipboardCopy, Check } from 'lucide-react';
+import { PageLayout } from '@/components/ui/PageLayout';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { FrameItem } from '@/components/roll/FrameItem';
+import { useRollStore } from '@/store/rollStore';
+import { useMasterDataStore } from '@/store/masterDataStore';
+import type { Frame } from '@/types';
 
 const APERTURE_OPTIONS = [
     'f/1.0',
@@ -25,7 +25,7 @@ const APERTURE_OPTIONS = [
     'f/16',
     'f/22',
     'f/32',
-].map((v) => ({ value: v, label: v }))
+].map((v) => ({ value: v, label: v }));
 
 const SHUTTER_OPTIONS = [
     '1',
@@ -42,11 +42,11 @@ const SHUTTER_OPTIONS = [
     '1/2000',
     '1/4000',
     'B',
-].map((v) => ({ value: v, label: v }))
+].map((v) => ({ value: v, label: v }));
 
 export function RollDetailScreen() {
-    const { rollId } = useParams<{ rollId: string }>()
-    const navigate = useNavigate()
+    const { rollId } = useParams<{ rollId: string }>();
+    const navigate = useNavigate();
     const {
         rolls,
         deleteRoll,
@@ -56,29 +56,29 @@ export function RollDetailScreen() {
         insertFrame,
         resumeRoll,
         setActiveRollId,
-    } = useRollStore()
-    const { films, cameras, lenses } = useMasterDataStore()
+    } = useRollStore();
+    const { films, cameras, lenses } = useMasterDataStore();
 
-    const roll = rolls.find((r) => r.id === rollId)
+    const roll = rolls.find((r) => r.id === rollId);
 
-    const [editingFrame, setEditingFrame] = useState<Frame | null>(null)
-    const [lensId, setLensId] = useState('')
-    const [aperture, setAperture] = useState('')
-    const [shutterSpeed, setShutterSpeed] = useState('')
-    const [memo, setMemo] = useState('')
-    const [tsDate, setTsDate] = useState('')
-    const [tsTime, setTsTime] = useState('')
-    const [copied, setCopied] = useState(false)
-    const [toastFading, setToastFading] = useState(false)
-    const [showDeleteRoll, setShowDeleteRoll] = useState(false)
-    const [showResumeConfirm, setShowResumeConfirm] = useState(false)
-    const [showAddFrame, setShowAddFrame] = useState(false)
-    const [addFrameAt, setAddFrameAt] = useState(1)
-    const [showEditRoll, setShowEditRoll] = useState(false)
-    const [editFilmId, setEditFilmId] = useState('')
-    const [editCameraId, setEditCameraId] = useState('')
-    const [editMaxFrames, setEditMaxFrames] = useState('')
-    const [editRollMemo, setEditRollMemo] = useState('')
+    const [editingFrame, setEditingFrame] = useState<Frame | null>(null);
+    const [lensId, setLensId] = useState('');
+    const [aperture, setAperture] = useState('');
+    const [shutterSpeed, setShutterSpeed] = useState('');
+    const [memo, setMemo] = useState('');
+    const [tsDate, setTsDate] = useState('');
+    const [tsTime, setTsTime] = useState('');
+    const [copied, setCopied] = useState(false);
+    const [toastFading, setToastFading] = useState(false);
+    const [showDeleteRoll, setShowDeleteRoll] = useState(false);
+    const [showResumeConfirm, setShowResumeConfirm] = useState(false);
+    const [showAddFrame, setShowAddFrame] = useState(false);
+    const [addFrameAt, setAddFrameAt] = useState(1);
+    const [showEditRoll, setShowEditRoll] = useState(false);
+    const [editFilmId, setEditFilmId] = useState('');
+    const [editCameraId, setEditCameraId] = useState('');
+    const [editMaxFrames, setEditMaxFrames] = useState('');
+    const [editRollMemo, setEditRollMemo] = useState('');
 
     if (!roll) {
         return (
@@ -88,118 +88,118 @@ export function RollDetailScreen() {
                     <Button onClick={() => navigate('/rolls')}>롤 목록으로</Button>
                 </div>
             </PageLayout>
-        )
+        );
     }
 
-    const film = films.find((f) => f.id === roll.filmId)
-    const camera = cameras.find((c) => c.id === roll.cameraId)
+    const film = films.find((f) => f.id === roll.filmId);
+    const camera = cameras.find((c) => c.id === roll.cameraId);
 
-    const isActive = roll.status === 'active'
+    const isActive = roll.status === 'active';
     const fmt = (iso: string) =>
         new Date(iso).toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
-        })
-    const startStr = fmt(roll.startedAt)
-    const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null
+        });
+    const startStr = fmt(roll.startedAt);
+    const endStr = roll.finishedAt ? fmt(roll.finishedAt) : null;
     const dateStr = isActive
         ? `${startStr} ~`
         : endStr && endStr !== startStr
           ? `${startStr} ~ ${endStr}`
-          : startStr
+          : startStr;
 
     function toDateStr(iso: string) {
-        const d = new Date(iso)
-        const pad = (n: number) => String(n).padStart(2, '0')
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+        const d = new Date(iso);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     }
 
     function toTimeStr(iso: string) {
-        const d = new Date(iso)
-        const pad = (n: number) => String(n).padStart(2, '0')
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+        const d = new Date(iso);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
     }
 
     function openEditFrame(frame: Frame) {
-        setEditingFrame(frame)
-        setLensId(frame.lensId ?? '')
-        setAperture(frame.aperture ?? '')
-        setShutterSpeed(frame.shutterSpeed ?? '')
-        setMemo(frame.memo ?? '')
-        setTsDate(frame.timestamp ? toDateStr(frame.timestamp) : '')
-        setTsTime(frame.timestamp ? toTimeStr(frame.timestamp) : '')
+        setEditingFrame(frame);
+        setLensId(frame.lensId ?? '');
+        setAperture(frame.aperture ?? '');
+        setShutterSpeed(frame.shutterSpeed ?? '');
+        setMemo(frame.memo ?? '');
+        setTsDate(frame.timestamp ? toDateStr(frame.timestamp) : '');
+        setTsTime(frame.timestamp ? toTimeStr(frame.timestamp) : '');
     }
 
     const prevFrameTimestamp = editingFrame
         ? (roll.frames[editingFrame.frameNumber - 2]?.timestamp ?? null)
-        : null
+        : null;
 
-    const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null
+    const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null;
     const tsError = !!(
         prevFrameTimestamp &&
         currentTs &&
         currentTs.slice(0, 19) < prevFrameTimestamp.slice(0, 19)
-    )
+    );
 
     function saveFrame() {
-        if (!editingFrame || !roll) return
+        if (!editingFrame || !roll) return;
         updateFrame(roll.id, editingFrame.id, {
             lensId: lensId || undefined,
             aperture: aperture || undefined,
             shutterSpeed: shutterSpeed || undefined,
             memo: memo || undefined,
             timestamp: currentTs ?? undefined,
-        })
-        setEditingFrame(null)
+        });
+        setEditingFrame(null);
     }
 
     function handleDeleteFrame() {
-        if (!editingFrame || !roll) return
-        deleteFrame(roll.id, editingFrame.id)
-        setEditingFrame(null)
+        if (!editingFrame || !roll) return;
+        deleteFrame(roll.id, editingFrame.id);
+        setEditingFrame(null);
     }
 
     function handleDeleteRoll() {
-        deleteRoll(roll!.id)
-        navigate('/rolls', { replace: true })
+        deleteRoll(roll!.id);
+        navigate('/rolls', { replace: true });
     }
 
     function openEditRoll() {
-        setEditFilmId(roll!.filmId)
-        setEditCameraId(roll!.cameraId)
-        setEditMaxFrames(String(roll!.maxFrames))
-        setEditRollMemo(roll!.memo ?? '')
-        setShowEditRoll(true)
+        setEditFilmId(roll!.filmId);
+        setEditCameraId(roll!.cameraId);
+        setEditMaxFrames(String(roll!.maxFrames));
+        setEditRollMemo(roll!.memo ?? '');
+        setShowEditRoll(true);
     }
 
     function saveRoll() {
-        const maxFrames = parseInt(editMaxFrames, 10)
-        if (!editFilmId || !editCameraId || !maxFrames || maxFrames < 1) return
+        const maxFrames = parseInt(editMaxFrames, 10);
+        if (!editFilmId || !editCameraId || !maxFrames || maxFrames < 1) return;
         updateRoll(roll!.id, {
             filmId: editFilmId,
             cameraId: editCameraId,
             maxFrames,
             memo: editRollMemo || undefined,
-        })
-        setShowEditRoll(false)
+        });
+        setShowEditRoll(false);
     }
 
     async function copyFixifPayload() {
-        if (!roll) return
+        if (!roll) return;
         const frames = roll.frames.map((frame) => {
-            const lens = lenses.find((l) => l.id === frame.lensId)
+            const lens = lenses.find((l) => l.id === frame.lensId);
             const apertureNum = frame.aperture
                 ? parseFloat(frame.aperture.replace('f/', ''))
-                : undefined
-            const entry: Record<string, unknown> = { n: frame.frameNumber }
-            if (frame.timestamp) entry.t = frame.timestamp
-            if (lens) entry.lens = lens.name
-            if (apertureNum != null && !isNaN(apertureNum)) entry.aperture = apertureNum
-            if (frame.shutterSpeed) entry.shutter = frame.shutterSpeed
-            if (frame.memo) entry.memo = frame.memo
-            return entry
-        })
+                : undefined;
+            const entry: Record<string, unknown> = { n: frame.frameNumber };
+            if (frame.timestamp) entry.t = frame.timestamp;
+            if (lens) entry.lens = lens.name;
+            if (apertureNum != null && !isNaN(apertureNum)) entry.aperture = apertureNum;
+            if (frame.shutterSpeed) entry.shutter = frame.shutterSpeed;
+            if (frame.memo) entry.memo = frame.memo;
+            return entry;
+        });
 
         const payload = {
             v: 1,
@@ -208,45 +208,45 @@ export function RollDetailScreen() {
                 film: { name: film?.name ?? '', iso: film?.iso ?? 0 },
                 frames,
             },
-        }
+        };
 
-        const json = JSON.stringify(payload)
-        const encoded = new TextEncoder().encode(json)
-        const cs = new CompressionStream('gzip')
-        const writer = cs.writable.getWriter()
-        writer.write(encoded)
-        writer.close()
-        const chunks: Uint8Array[] = []
-        const reader = cs.readable.getReader()
+        const json = JSON.stringify(payload);
+        const encoded = new TextEncoder().encode(json);
+        const cs = new CompressionStream('gzip');
+        const writer = cs.writable.getWriter();
+        writer.write(encoded);
+        writer.close();
+        const chunks: Uint8Array[] = [];
+        const reader = cs.readable.getReader();
         for (;;) {
-            const { done, value } = await reader.read()
-            if (done) break
-            chunks.push(value)
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
         }
-        const total = chunks.reduce((s, c) => s + c.length, 0)
-        const buf = new Uint8Array(total)
-        let offset = 0
+        const total = chunks.reduce((s, c) => s + c.length, 0);
+        const buf = new Uint8Array(total);
+        let offset = 0;
         for (const chunk of chunks) {
-            buf.set(chunk, offset)
-            offset += chunk.length
+            buf.set(chunk, offset);
+            offset += chunk.length;
         }
-        let binary = ''
-        for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i])
-        const result = 'FIXIF1:' + btoa(binary)
+        let binary = '';
+        for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]);
+        const result = 'FIXIF1:' + btoa(binary);
 
-        await navigator.clipboard.writeText(result)
-        setCopied(true)
-        setToastFading(false)
-        setTimeout(() => setToastFading(true), 1800)
-        setTimeout(() => setCopied(false), 2400)
+        await navigator.clipboard.writeText(result);
+        setCopied(true);
+        setToastFading(false);
+        setTimeout(() => setToastFading(true), 1800);
+        setTimeout(() => setCopied(false), 2400);
     }
 
     function handleInsertFrame() {
-        const newId = insertFrame(roll!.id, addFrameAt)
-        setShowAddFrame(false)
-        const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === roll!.id)
-        const newFrame = updatedRoll?.frames.find((f) => f.id === newId)
-        if (newFrame) openEditFrame(newFrame)
+        const newId = insertFrame(roll!.id, addFrameAt);
+        setShowAddFrame(false);
+        const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === roll!.id);
+        const newFrame = updatedRoll?.frames.find((f) => f.id === newId);
+        if (newFrame) openEditFrame(newFrame);
     }
 
     return (
@@ -260,7 +260,11 @@ export function RollDetailScreen() {
                         className="p-2 text-film-muted hover:text-film-text transition-colors"
                         title="EXIF 데이터 복사"
                     >
-                        {copied ? <Check size={16} className="text-film-accent" /> : <ClipboardCopy size={16} />}
+                        {copied ? (
+                            <Check size={16} className="text-film-accent" />
+                        ) : (
+                            <ClipboardCopy size={16} />
+                        )}
                     </button>
                     <button
                         onClick={openEditRoll}
@@ -336,8 +340,8 @@ export function RollDetailScreen() {
                         fullWidth
                         className="mb-4"
                         onClick={() => {
-                            setActiveRollId(roll.id)
-                            navigate('/shoot')
+                            setActiveRollId(roll.id);
+                            navigate('/shoot');
                         }}
                     >
                         <span className="flex items-center justify-center gap-2">
@@ -368,8 +372,8 @@ export function RollDetailScreen() {
                     <div className="flex items-center justify-end mb-2">
                         <button
                             onClick={() => {
-                                setAddFrameAt(roll.frames.length + 1)
-                                setShowAddFrame(true)
+                                setAddFrameAt(roll.frames.length + 1);
+                                setShowAddFrame(true);
                             }}
                             className="flex items-center gap-1 font-mono text-xs text-film-accent hover:opacity-70 transition-opacity"
                         >
@@ -568,9 +572,9 @@ export function RollDetailScreen() {
                             variant="primary"
                             fullWidth
                             onClick={() => {
-                                resumeRoll(roll!.id)
-                                setShowResumeConfirm(false)
-                                navigate('/shoot')
+                                resumeRoll(roll!.id);
+                                setShowResumeConfirm(false);
+                                navigate('/shoot');
                             }}
                         >
                             재개
@@ -582,7 +586,9 @@ export function RollDetailScreen() {
             {/* Copy success toast */}
             {copied && (
                 <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
-                    <div className={`animate-slide-up flex items-center gap-2 bg-film-surface border border-film-border rounded-full px-4 py-2 shadow-lg transition-opacity duration-500 ${toastFading ? 'opacity-0' : 'opacity-100'}`}>
+                    <div
+                        className={`animate-slide-up flex items-center gap-2 bg-film-surface border border-film-border rounded-full px-4 py-2 shadow-lg transition-opacity duration-500 ${toastFading ? 'opacity-0' : 'opacity-100'}`}
+                    >
                         <Check size={13} className="text-film-accent shrink-0" />
                         <span className="font-mono text-xs text-film-text whitespace-nowrap">
                             클립보드에 복사됨
@@ -617,5 +623,5 @@ export function RollDetailScreen() {
                 </div>
             </Modal>
         </PageLayout>
-    )
+    );
 }

@@ -1,34 +1,34 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import { nanoid } from 'nanoid'
-import { idbStorage } from '@/lib/idb'
-import type { Film, Camera, Lens } from '@/types'
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { nanoid } from 'nanoid';
+import { idbStorage } from '@/lib/idb';
+import type { Film, Camera, Lens } from '@/types';
 
 interface MasterDataState {
-    films: Film[]
-    cameras: Camera[]
-    lenses: Lens[]
+    films: Film[];
+    cameras: Camera[];
+    lenses: Lens[];
 
     // Film actions
-    addFilm: (data: Omit<Film, 'id'>) => void
-    updateFilm: (id: string, patch: Partial<Omit<Film, 'id'>>) => void
-    deleteFilm: (id: string) => void
+    addFilm: (data: Omit<Film, 'id'>) => void;
+    updateFilm: (id: string, patch: Partial<Omit<Film, 'id'>>) => void;
+    deleteFilm: (id: string) => void;
 
     // Camera actions
-    addCamera: (data: Omit<Camera, 'id'>) => void
-    updateCamera: (id: string, patch: Partial<Omit<Camera, 'id'>>) => void
-    deleteCamera: (id: string) => void
+    addCamera: (data: Omit<Camera, 'id'>) => void;
+    updateCamera: (id: string, patch: Partial<Omit<Camera, 'id'>>) => void;
+    deleteCamera: (id: string) => void;
 
     // Lens actions
-    addLens: (data: Omit<Lens, 'id'>) => void
-    updateLens: (id: string, patch: Partial<Omit<Lens, 'id'>>) => void
-    deleteLens: (id: string) => void
+    addLens: (data: Omit<Lens, 'id'>) => void;
+    updateLens: (id: string, patch: Partial<Omit<Lens, 'id'>>) => void;
+    deleteLens: (id: string) => void;
 
     // Bulk import (replaces all master data)
-    importMasterData: (data: { films: Film[]; cameras: Camera[]; lenses: Lens[] }) => void
+    importMasterData: (data: { films: Film[]; cameras: Camera[]; lenses: Lens[] }) => void;
 
     // 전체 삭제
-    clearAll: () => void
+    clearAll: () => void;
 }
 
 export const useMasterDataStore = create<MasterDataState>()(
@@ -65,6 +65,6 @@ export const useMasterDataStore = create<MasterDataState>()(
         {
             name: 'filo-master',
             storage: createJSONStorage(() => idbStorage),
-        }
-    )
-)
+        },
+    ),
+);
