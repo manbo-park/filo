@@ -1,83 +1,28 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useParams, useNavigate } from 'react-router-dom';
-import {
-    Trash2,
-    Play,
-    Plus,
-    Pencil,
-    Camera,
-    FileText,
-    ClipboardCopy,
-    Check,
-    MapPin,
-} from 'lucide-react';
+import { Trash2, Play, Plus, Pencil, Camera, FileText, ClipboardCopy, Check } from 'lucide-react';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { CopyToast } from '@/components/ui/CopyToast';
 import { useClipboardToast } from '@/hooks/useClipboardToast';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
 import { FrameItem } from '@/components/roll/FrameItem';
+import { EditFrameModal } from '@/components/roll/EditFrameModal';
+import { EditRollModal } from '@/components/roll/EditRollModal';
+import { AddFrameModal } from '@/components/roll/AddFrameModal';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
 import { buildExifPayload } from '@/lib/exifPayload';
 import type { Frame } from '@/types';
 
-const APERTURE_OPTIONS = [
-    'f/1.0',
-    'f/1.2',
-    'f/1.4',
-    'f/1.8',
-    'f/2',
-    'f/2.8',
-    'f/4',
-    'f/5.6',
-    'f/8',
-    'f/11',
-    'f/16',
-    'f/22',
-    'f/32',
-].map((v) => ({ value: v, label: v }));
-
-const SHUTTER_OPTIONS = [
-    '1',
-    '1/2',
-    '1/4',
-    '1/8',
-    '1/15',
-    '1/30',
-    '1/60',
-    '1/125',
-    '1/250',
-    '1/500',
-    '1/1000',
-    '1/2000',
-    '1/4000',
-    'B',
-].map((v) => ({ value: v, label: v }));
-
 export function RollDetailScreen() {
     const { rollId } = useParams<{ rollId: string }>();
     const navigate = useNavigate();
     const roll = useRollStore((s) => s.rolls.find((r) => r.id === rollId));
-    const {
-        deleteRoll,
-        updateFrame,
-        updateRoll,
-        deleteFrame,
-        insertFrame,
-        resumeRoll,
-        setActiveRollId,
-    } = useRollStore(
+    const { deleteRoll, resumeRoll, setActiveRollId } = useRollStore(
         useShallow((s) => ({
             deleteRoll: s.deleteRoll,
-            updateFrame: s.updateFrame,
-            updateRoll: s.updateRoll,
-            deleteFrame: s.deleteFrame,
-            insertFrame: s.insertFrame,
             resumeRoll: s.resumeRoll,
             setActiveRollId: s.setActiveRollId,
         })),
@@ -87,23 +32,12 @@ export function RollDetailScreen() {
     );
 
     const [editingFrame, setEditingFrame] = useState<Frame | null>(null);
-    const [lensId, setLensId] = useState('');
-    const [aperture, setAperture] = useState('');
-    const [shutterSpeed, setShutterSpeed] = useState('');
-    const [memo, setMemo] = useState('');
-    const [tsDate, setTsDate] = useState('');
-    const [tsTime, setTsTime] = useState('');
     const { copied, copyError, fading: toastFading, triggerCopied, triggerCopyError } =
         useClipboardToast();
     const [showDeleteRoll, setShowDeleteRoll] = useState(false);
     const [showResumeConfirm, setShowResumeConfirm] = useState(false);
     const [showAddFrame, setShowAddFrame] = useState(false);
-    const [addFrameAt, setAddFrameAt] = useState(1);
     const [showEditRoll, setShowEditRoll] = useState(false);
-    const [editFilmId, setEditFilmId] = useState('');
-    const [editCameraId, setEditCameraId] = useState('');
-    const [editMaxFrames, setEditMaxFrames] = useState('');
-    const [editRollMemo, setEditRollMemo] = useState('');
 
     if (!roll) {
         return (
@@ -134,80 +68,9 @@ export function RollDetailScreen() {
           ? `${startStr} ~ ${endStr}`
           : startStr;
 
-    function toDateStr(iso: string) {
-        const d = new Date(iso);
-        const pad = (n: number) => String(n).padStart(2, '0');
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    }
-
-    function toTimeStr(iso: string) {
-        const d = new Date(iso);
-        const pad = (n: number) => String(n).padStart(2, '0');
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    }
-
-    function openEditFrame(frame: Frame) {
-        setEditingFrame(frame);
-        setLensId(frame.lensId ?? '');
-        setAperture(frame.aperture ?? '');
-        setShutterSpeed(frame.shutterSpeed ?? '');
-        setMemo(frame.memo ?? '');
-        setTsDate(frame.timestamp ? toDateStr(frame.timestamp) : '');
-        setTsTime(frame.timestamp ? toTimeStr(frame.timestamp) : '');
-    }
-
-    const prevFrameTimestamp = editingFrame
-        ? (roll.frames[editingFrame.frameNumber - 2]?.timestamp ?? null)
-        : null;
-
-    const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null;
-    const tsError = !!(
-        prevFrameTimestamp &&
-        currentTs &&
-        currentTs.slice(0, 19) < prevFrameTimestamp.slice(0, 19)
-    );
-
-    function saveFrame() {
-        if (!editingFrame || !roll) return;
-        updateFrame(roll.id, editingFrame.id, {
-            lensId: lensId || undefined,
-            aperture: aperture || undefined,
-            shutterSpeed: shutterSpeed || undefined,
-            memo: memo || undefined,
-            timestamp: currentTs ?? undefined,
-        });
-        setEditingFrame(null);
-    }
-
-    function handleDeleteFrame() {
-        if (!editingFrame || !roll) return;
-        deleteFrame(roll.id, editingFrame.id);
-        setEditingFrame(null);
-    }
-
     function handleDeleteRoll() {
         deleteRoll(roll!.id);
         navigate('/rolls', { replace: true });
-    }
-
-    function openEditRoll() {
-        setEditFilmId(roll!.filmId);
-        setEditCameraId(roll!.cameraId);
-        setEditMaxFrames(String(roll!.maxFrames));
-        setEditRollMemo(roll!.memo ?? '');
-        setShowEditRoll(true);
-    }
-
-    function saveRoll() {
-        const maxFrames = parseInt(editMaxFrames, 10);
-        if (!editFilmId || !editCameraId || !maxFrames || maxFrames < 1) return;
-        updateRoll(roll!.id, {
-            filmId: editFilmId,
-            cameraId: editCameraId,
-            maxFrames,
-            memo: editRollMemo || undefined,
-        });
-        setShowEditRoll(false);
     }
 
     async function copyRollDataPayload() {
@@ -219,14 +82,6 @@ export function RollDetailScreen() {
         } catch {
             triggerCopyError();
         }
-    }
-
-    function handleInsertFrame() {
-        const newId = insertFrame(roll!.id, addFrameAt);
-        setShowAddFrame(false);
-        const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === roll!.id);
-        const newFrame = updatedRoll?.frames.find((f) => f.id === newId);
-        if (newFrame) openEditFrame(newFrame);
     }
 
     return (
@@ -247,7 +102,7 @@ export function RollDetailScreen() {
                         )}
                     </button>
                     <button
-                        onClick={openEditRoll}
+                        onClick={() => setShowEditRoll(true)}
                         className="p-2 text-film-muted hover:text-film-text transition-colors"
                         title="롤 수정"
                     >
@@ -351,10 +206,7 @@ export function RollDetailScreen() {
                 {roll.frames.length > 0 && (
                     <div className="flex items-center justify-end mb-2">
                         <button
-                            onClick={() => {
-                                setAddFrameAt(roll.frames.length + 1);
-                                setShowAddFrame(true);
-                            }}
+                            onClick={() => setShowAddFrame(true)}
                             className="flex items-center gap-1 font-mono text-xs text-film-accent hover:opacity-70 transition-opacity"
                         >
                             <Plus size={13} />
@@ -372,192 +224,36 @@ export function RollDetailScreen() {
                             <FrameItem
                                 key={frame.id}
                                 frame={frame}
-                                onEdit={() => openEditFrame(frame)}
+                                onEdit={() => setEditingFrame(frame)}
                             />
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Edit frame modal */}
-            <Modal
-                isOpen={!!editingFrame}
+            <EditFrameModal
+                key={editingFrame?.id ?? ''}
+                rollId={roll.id}
+                frame={editingFrame}
                 onClose={() => setEditingFrame(null)}
-                title={`${editingFrame?.frameNumber ?? ''}번 프레임`}
-            >
-                <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                        <label className="font-mono text-xs text-film-muted">촬영 시간</label>
-                        <div className="flex gap-2">
-                            <input
-                                type="date"
-                                value={tsDate}
-                                onChange={(e) => setTsDate(e.target.value)}
-                                className="flex-1 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
-                            />
-                            <input
-                                type="time"
-                                step="1"
-                                value={tsTime}
-                                onChange={(e) => setTsTime(e.target.value)}
-                                className="w-32 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-sm text-film-text focus:outline-none focus:border-film-accent"
-                            />
-                        </div>
-                        {tsError && (
-                            <p className="font-mono text-xs text-film-warn">
-                                이전 컷의 촬영 시간보다 이릅니다.
-                            </p>
-                        )}
-                    </div>
-                    <Select
-                        label="렌즈"
-                        value={lensId}
-                        onChange={(e) => setLensId(e.target.value)}
-                        options={lenses.map((l) => ({ value: l.id, label: l.name }))}
-                        placeholder="렌즈 선택..."
-                    />
-                    <Select
-                        label="조리개"
-                        value={aperture}
-                        onChange={(e) => setAperture(e.target.value)}
-                        options={APERTURE_OPTIONS}
-                        placeholder="조리개 선택..."
-                    />
-                    <Select
-                        label="셔터 속도"
-                        value={shutterSpeed}
-                        onChange={(e) => setShutterSpeed(e.target.value)}
-                        options={SHUTTER_OPTIONS}
-                        placeholder="셔터 속도 선택..."
-                    />
-                    <Input
-                        label="메모"
-                        value={memo}
-                        onChange={(e) => setMemo(e.target.value)}
-                        placeholder="이 컷에 대한 메모..."
-                    />
+            />
 
-                    {editingFrame?.latitude != null && editingFrame?.longitude != null && (
-                        <div className="flex flex-col gap-1">
-                            <label className="font-mono text-xs text-film-muted">위치 정보</label>
-                            <button
-                                onClick={() => {
-                                    navigator.clipboard
-                                        .writeText(
-                                            `${editingFrame!.latitude},${editingFrame!.longitude}`,
-                                        )
-                                        .then(triggerCopied, triggerCopyError);
-                                }}
-                                className="flex items-center gap-2 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-xs text-film-accent active:opacity-70 transition-opacity text-left"
-                            >
-                                <MapPin size={12} className="shrink-0" />
-                                <span>
-                                    {Math.abs(editingFrame.latitude).toFixed(6)}
-                                    {editingFrame.latitude >= 0 ? '°N' : '°S'},&nbsp;
-                                    {Math.abs(editingFrame.longitude).toFixed(6)}
-                                    {editingFrame.longitude >= 0 ? '°E' : '°W'}
-                                </span>
-                                {editingFrame.locationAccuracy != null && (
-                                    <span className="ml-auto text-film-muted">
-                                        ±{Math.round(editingFrame.locationAccuracy)}m
-                                    </span>
-                                )}
-                            </button>
-                        </div>
-                    )}
-
-                    <div className="flex gap-3 mt-1">
-                        <Button variant="danger" size="md" fullWidth onClick={handleDeleteFrame}>
-                            삭제
-                        </Button>
-                        <Button variant="primary" size="md" fullWidth onClick={saveFrame}>
-                            저장
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
-
-            {/* Edit roll modal */}
-            <Modal
+            <EditRollModal
+                key={showEditRoll ? roll.id : 'closed'}
+                rollId={roll.id}
                 isOpen={showEditRoll}
                 onClose={() => setShowEditRoll(false)}
-                title="롤 정보 수정"
-            >
-                <div className="flex flex-col gap-4">
-                    <Select
-                        label="필름"
-                        value={editFilmId}
-                        onChange={(e) => setEditFilmId(e.target.value)}
-                        options={films.map((f) => ({ value: f.id, label: f.name }))}
-                        placeholder="필름 선택..."
-                    />
-                    <Select
-                        label="카메라"
-                        value={editCameraId}
-                        onChange={(e) => setEditCameraId(e.target.value)}
-                        options={cameras.map((c) => ({ value: c.id, label: c.name }))}
-                        placeholder="카메라 선택..."
-                    />
-                    <Input
-                        label="전체 프레임 수"
-                        type="number"
-                        value={editMaxFrames}
-                        onChange={(e) => setEditMaxFrames(e.target.value)}
-                        placeholder="36"
-                    />
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-mono text-film-muted uppercase tracking-wider">
-                            메모
-                        </label>
-                        <textarea
-                            value={editRollMemo}
-                            onChange={(e) => setEditRollMemo(e.target.value)}
-                            placeholder="이 롤에 대한 메모..."
-                            rows={3}
-                            className="bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors resize-none"
-                        />
-                    </div>
-                    <div className="flex gap-3 mt-1">
-                        <Button
-                            variant="secondary"
-                            fullWidth
-                            onClick={() => setShowEditRoll(false)}
-                        >
-                            취소
-                        </Button>
-                        <Button variant="primary" fullWidth onClick={saveRoll}>
-                            저장
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+            />
 
-            {/* Add frame modal */}
-            <Modal isOpen={showAddFrame} onClose={() => setShowAddFrame(false)} title="프레임 추가">
-                <div className="flex flex-col gap-4">
-                    <Select
-                        label="삽입할 위치"
-                        value={String(addFrameAt)}
-                        onChange={(e) => setAddFrameAt(Number(e.target.value))}
-                        options={Array.from({ length: roll.frames.length + 1 }, (_, i) => ({
-                            value: String(i + 1),
-                            label: `${i + 1}번`,
-                        }))}
-                    />
-                    <div className="flex gap-3">
-                        <Button
-                            variant="secondary"
-                            fullWidth
-                            onClick={() => setShowAddFrame(false)}
-                        >
-                            취소
-                        </Button>
-                        <Button variant="primary" fullWidth onClick={handleInsertFrame}>
-                            추가
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+            <AddFrameModal
+                key={showAddFrame ? 'open' : 'closed'}
+                rollId={roll.id}
+                totalFrames={roll.frames.length}
+                defaultAt={roll.frames.length + 1}
+                isOpen={showAddFrame}
+                onClose={() => setShowAddFrame(false)}
+                onInserted={(frame) => setEditingFrame(frame)}
+            />
 
             {/* Resume roll confirmation */}
             <ConfirmModal
