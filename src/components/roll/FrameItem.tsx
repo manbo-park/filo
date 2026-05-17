@@ -1,6 +1,7 @@
 import { Clock, FileText, MapPin, Search } from 'lucide-react';
 import type { Frame } from '@/types';
 import { useMasterDataStore } from '@/store/masterDataStore';
+import { formatCoord } from '@/lib/format';
 
 interface FrameItemProps {
     frame: Frame;
@@ -29,9 +30,7 @@ export function FrameItem({ frame, onEdit }: FrameItemProps) {
 
     const locationStr = (() => {
         if (frame.latitude == null || frame.longitude == null) return null;
-        const lat = Math.abs(frame.latitude).toFixed(4) + (frame.latitude >= 0 ? '°N' : '°S');
-        const lng = Math.abs(frame.longitude).toFixed(4) + (frame.longitude >= 0 ? '°E' : '°W');
-        return `${lat}, ${lng}`;
+        return `${formatCoord(frame.latitude, true)}, ${formatCoord(frame.longitude, false)}`;
     })();
 
     return (

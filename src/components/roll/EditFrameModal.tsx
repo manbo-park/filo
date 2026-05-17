@@ -9,6 +9,7 @@ import { CopyToast } from '@/components/ui/CopyToast';
 import { useClipboardToast } from '@/hooks/useClipboardToast';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
+import { toDateStr, toTimeStr, formatCoord } from '@/lib/format';
 import type { Frame } from '@/types';
 
 const APERTURE_OPTIONS = [
@@ -44,17 +45,6 @@ const SHUTTER_OPTIONS = [
     'B',
 ].map((v) => ({ value: v, label: v }));
 
-function toDateStr(iso: string): string {
-    const d = new Date(iso);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
-function toTimeStr(iso: string): string {
-    const d = new Date(iso);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
 
 interface EditFrameModalProps {
     rollId: string;
@@ -177,10 +167,8 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
                             >
                                 <MapPin size={12} className="shrink-0" />
                                 <span>
-                                    {Math.abs(frame.latitude).toFixed(6)}
-                                    {frame.latitude >= 0 ? '°N' : '°S'},&nbsp;
-                                    {Math.abs(frame.longitude).toFixed(6)}
-                                    {frame.longitude >= 0 ? '°E' : '°W'}
+                                    {formatCoord(frame.latitude, true, 6)},&nbsp;
+                                    {formatCoord(frame.longitude, false, 6)}
                                 </span>
                                 {frame.locationAccuracy != null && (
                                     <span className="ml-auto text-film-muted">
