@@ -1,203 +1,13 @@
 import { useState } from 'react';
-import { PlusCircle, Trash2, Edit3, Check, X, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Input } from '@/components/ui/Input';
+import { FilmRow } from '@/components/master/FilmRow';
+import { CameraRow } from '@/components/master/CameraRow';
+import { LensRow } from '@/components/master/LensRow';
 import { useMasterDataStore } from '@/store/masterDataStore';
-import type { Film, Camera, Lens } from '@/types';
 
 type Tab = 'films' | 'cameras' | 'lenses';
-
-// ── Inline item editor ───────────────────────────────────────────────────────
-
-interface FilmRowProps {
-    film: Film;
-    onUpdate: (patch: Partial<Omit<Film, 'id'>>) => void;
-    onDelete: () => void;
-}
-function FilmRow({ film, onUpdate, onDelete }: FilmRowProps) {
-    const [editing, setEditing] = useState(false);
-    const [name, setName] = useState(film.name);
-    const [iso, setIso] = useState(String(film.iso));
-
-    function save() {
-        if (!name.trim()) return;
-        onUpdate({ name: name.trim(), iso: parseInt(iso) || film.iso });
-        setEditing(false);
-    }
-
-    if (editing) {
-        return (
-            <div className="flex items-center gap-2 py-2 border-b border-film-border last:border-b-0">
-                <input
-                    className="flex-1 bg-film-bg border border-film-accent rounded px-2 py-1 text-film-text font-mono text-sm focus:outline-none"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoFocus
-                />
-                <input
-                    className="w-16 bg-film-bg border border-film-border rounded px-2 py-1 text-film-text font-mono text-sm focus:outline-none text-right"
-                    value={iso}
-                    onChange={(e) => setIso(e.target.value)}
-                    type="number"
-                    placeholder="ISO"
-                />
-                <button onClick={save} className="text-film-accent hover:text-yellow-400 p-1">
-                    <Check size={16} />
-                </button>
-                <button
-                    onClick={() => setEditing(false)}
-                    className="text-film-muted hover:text-film-text p-1"
-                >
-                    <X size={14} />
-                </button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex items-center gap-2 py-2.5 border-b border-film-border last:border-b-0">
-            <div className="flex-1 min-w-0">
-                <span className="text-film-text font-mono text-sm">{film.name}</span>
-                <span className="text-film-muted font-mono text-xs ml-2">ISO {film.iso}</span>
-            </div>
-            <button
-                onClick={() => setEditing(true)}
-                className="text-film-muted hover:text-film-text p-1"
-            >
-                <Edit3 size={14} />
-            </button>
-            <button onClick={onDelete} className="text-film-muted hover:text-film-danger p-1">
-                <Trash2 size={14} />
-            </button>
-        </div>
-    );
-}
-
-interface CameraRowProps {
-    camera: Camera;
-    onUpdate: (patch: Partial<Omit<Camera, 'id'>>) => void;
-    onDelete: () => void;
-}
-function CameraRow({ camera, onUpdate, onDelete }: CameraRowProps) {
-    const [editing, setEditing] = useState(false);
-    const [name, setName] = useState(camera.name);
-    const [brand, setBrand] = useState(camera.brand ?? '');
-
-    function save() {
-        if (!name.trim()) return;
-        onUpdate({ name: name.trim(), brand: brand.trim() || undefined });
-        setEditing(false);
-    }
-
-    if (editing) {
-        return (
-            <div className="flex items-center gap-2 py-2 border-b border-film-border last:border-b-0">
-                <div className="flex-1 flex flex-col gap-1">
-                    <input
-                        className="w-full bg-film-bg border border-film-accent rounded px-2 py-1 text-film-text font-mono text-sm focus:outline-none"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        autoFocus
-                        onKeyDown={(e) => e.key === 'Enter' && save()}
-                        placeholder="카메라 이름"
-                    />
-                    <input
-                        className="w-full bg-film-bg border border-film-border rounded px-2 py-1 text-film-text font-mono text-xs focus:outline-none focus:border-film-accent"
-                        value={brand}
-                        onChange={(e) => setBrand(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && save()}
-                        placeholder="제조사 (선택)"
-                    />
-                </div>
-                <button onClick={save} className="text-film-accent hover:text-yellow-400 p-1">
-                    <Check size={16} />
-                </button>
-                <button
-                    onClick={() => setEditing(false)}
-                    className="text-film-muted hover:text-film-text p-1"
-                >
-                    <X size={14} />
-                </button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex items-center gap-2 py-2.5 border-b border-film-border last:border-b-0">
-            <div className="flex-1 min-w-0">
-                <span className="text-film-text font-mono text-sm">{camera.name}</span>
-                {camera.brand && (
-                    <span className="text-film-muted font-mono text-xs ml-2">{camera.brand}</span>
-                )}
-            </div>
-            <button
-                onClick={() => setEditing(true)}
-                className="text-film-muted hover:text-film-text p-1"
-            >
-                <Edit3 size={14} />
-            </button>
-            <button onClick={onDelete} className="text-film-muted hover:text-film-danger p-1">
-                <Trash2 size={14} />
-            </button>
-        </div>
-    );
-}
-
-interface SimpleRowProps {
-    item: Lens;
-    onUpdate: (patch: { name: string }) => void;
-    onDelete: () => void;
-}
-function SimpleRow({ item, onUpdate, onDelete }: SimpleRowProps) {
-    const [editing, setEditing] = useState(false);
-    const [name, setName] = useState(item.name);
-
-    function save() {
-        if (!name.trim()) return;
-        onUpdate({ name: name.trim() });
-        setEditing(false);
-    }
-
-    if (editing) {
-        return (
-            <div className="flex items-center gap-2 py-2 border-b border-film-border last:border-b-0">
-                <input
-                    className="flex-1 bg-film-bg border border-film-accent rounded px-2 py-1 text-film-text font-mono text-sm focus:outline-none"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoFocus
-                    onKeyDown={(e) => e.key === 'Enter' && save()}
-                />
-                <button onClick={save} className="text-film-accent hover:text-yellow-400 p-1">
-                    <Check size={16} />
-                </button>
-                <button
-                    onClick={() => setEditing(false)}
-                    className="text-film-muted hover:text-film-text p-1"
-                >
-                    <X size={14} />
-                </button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex items-center gap-2 py-2.5 border-b border-film-border last:border-b-0">
-            <span className="flex-1 text-film-text font-mono text-sm">{item.name}</span>
-            <button
-                onClick={() => setEditing(true)}
-                className="text-film-muted hover:text-film-text p-1"
-            >
-                <Edit3 size={14} />
-            </button>
-            <button onClick={onDelete} className="text-film-muted hover:text-film-danger p-1">
-                <Trash2 size={14} />
-            </button>
-        </div>
-    );
-}
-
-// ── Main Screen ──────────────────────────────────────────────────────────────
 
 export function MasterDataScreen() {
     const [tab, setTab] = useState<Tab>('films');
@@ -391,9 +201,9 @@ export function MasterDataScreen() {
                             [...lenses]
                                 .sort((a, b) => a.name.localeCompare(b.name, 'ko'))
                                 .map((lens) => (
-                                    <SimpleRow
+                                    <LensRow
                                         key={lens.id}
-                                        item={lens}
+                                        lens={lens}
                                         onUpdate={(p) => updateLens(lens.id, p)}
                                         onDelete={() => deleteLens(lens.id)}
                                     />

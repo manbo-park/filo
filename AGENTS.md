@@ -48,13 +48,17 @@ src/
 │   ├── MasterDataScreen.tsx # '/master' 필름/카메라/렌즈 기본 데이터
 │   └── SettingsScreen.tsx   # '/settings' 앱 설정
 ├── components/
-│   ├── ui/              # 재사용 UI 프리미티브 (Button, Input, Modal, Select, Switch, PageLayout)
+│   ├── ui/              # 재사용 UI 프리미티브 (Button, Input, Modal, ConfirmModal, CopyToast, Select, Switch, PageLayout)
 │   └── roll/            # 도메인 컴포넌트 (RollCard, FrameItem)
+├── hooks/               # 재사용 커스텀 훅 (useClipboardToast)
 ├── store/               # Zustand 스토어
 │   ├── rollStore.ts         # 롤/프레임 (IndexedDB, 'filo-rolls')
 │   ├── masterDataStore.ts   # 필름/카메라/렌즈 (IndexedDB, 'filo-master')
 │   └── settingsStore.ts     # 앱 설정 (localStorage, 'filo-settings')
-├── lib/idb.ts           # Zustand용 IndexedDB StateStorage 어댑터
+├── lib/                 # 순수 유틸리티
+│   ├── idb.ts               # Zustand용 IndexedDB StateStorage 어댑터
+│   ├── scrollLock.ts        # 참조 카운트 기반 body 스크롤 잠금
+│   └── exifPayload.ts       # EXIF 페이로드 빌드·gzip 압축
 └── types/index.ts       # 전역 TypeScript 타입 정의
 ```
 

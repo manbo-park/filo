@@ -1,27 +1,41 @@
 import { useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, List, Film, Camera, RefreshCw } from 'lucide-react';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
 export function ShootingScreen() {
     const navigate = useNavigate();
-    const { rolls, activeRollId, recordFrame, updateFrame, deleteFrame, finishRoll, setCurrentLens } =
-        useRollStore();
-    const { films, cameras, lenses } = useMasterDataStore();
-    const { autoFinishRoll, recordLocation } = useSettingsStore();
+    const activeRoll = useRollStore((s) =>
+        s.rolls.find((r) => r.id === s.activeRollId && r.status === 'active'),
+    );
+    const { recordFrame, updateFrame, deleteFrame, finishRoll, setCurrentLens } = useRollStore(
+        useShallow((s) => ({
+            recordFrame: s.recordFrame,
+            updateFrame: s.updateFrame,
+            deleteFrame: s.deleteFrame,
+            finishRoll: s.finishRoll,
+            setCurrentLens: s.setCurrentLens,
+        })),
+    );
+    const { films, cameras, lenses } = useMasterDataStore(
+        useShallow((s) => ({ films: s.films, cameras: s.cameras, lenses: s.lenses })),
+    );
+    const { autoFinishRoll, recordLocation } = useSettingsStore(
+        useShallow((s) => ({ autoFinishRoll: s.autoFinishRoll, recordLocation: s.recordLocation })),
+    );
     const [showFinishConfirm, setShowFinishConfirm] = useState(false);
     const [showUndoConfirm, setShowUndoConfirm] = useState(false);
     const [showLensSwap, setShowLensSwap] = useState(false);
     const [showOverageModal, setShowOverageModal] = useState(false);
     const [hasShownOverageModal, setHasShownOverageModal] = useState(false);
     const [justRecorded, setJustRecorded] = useState(false);
-
-    const activeRoll = rolls.find((r) => r.id === activeRollId && r.status === 'active');
 
     if (!activeRoll) {
         return (
@@ -48,7 +62,10 @@ export function ShootingScreen() {
 
     function handleRecord() {
         const frameId = recordFrame(activeRoll!.id);
-        const newCount = frameCount + 1;
+        // 렌더 시점의 stale frameCount 대신 스토어의 최신 길이를 사용한다.
+        // (연속 탭 시 자동 마무리·초과 모달 분기가 잘못 판단되는 것을 방지)
+        const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === activeRoll!.id);
+        const newCount = updatedRoll?.frames.length ?? frameCount + 1;
 
         if (recordLocation && frameId) {
             navigator.geolocation.getCurrentPosition(
@@ -225,96 +242,60 @@ export function ShootingScreen() {
             </div>
 
             {/* Overage modal — shown once when maxFrames is reached */}
-            <Modal
+            <ConfirmModal
                 isOpen={showOverageModal}
                 onClose={() => setShowOverageModal(false)}
                 title="롤을 마무리할까요?"
-            >
-                <div className="flex flex-col gap-4">
-                    <p className="text-film-muted font-mono text-sm">
+                message={
+                    <>
                         <span className="text-film-text font-bold">{maxFrames}</span>컷을 모두
                         촬영했습니다. 계속 촬영하거나 롤을 마무리할 수 있습니다.
-                    </p>
-                    <div className="flex gap-3">
-                        <Button
-                            variant="secondary"
-                            fullWidth
-                            onClick={() => setShowOverageModal(false)}
-                        >
-                            계속 촬영
-                        </Button>
-                        <Button
-                            variant="primary"
-                            fullWidth
-                            onClick={() => {
-                                setShowOverageModal(false);
-                                setShowFinishConfirm(true);
-                            }}
-                        >
-                            마무리
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+                    </>
+                }
+                cancelLabel="계속 촬영"
+                confirmLabel="마무리"
+                onConfirm={() => {
+                    setShowOverageModal(false);
+                    setShowFinishConfirm(true);
+                }}
+            />
 
             {/* Finish confirmation */}
-            <Modal
+            <ConfirmModal
                 isOpen={showFinishConfirm}
                 onClose={() => setShowFinishConfirm(false)}
                 title="롤을 마무리할까요?"
-            >
-                <div className="flex flex-col gap-4">
-                    <p className="text-film-muted font-mono text-sm">
-                        <span className="text-film-text font-bold">{frameCount}</span> /{' '}
+                message={
+                    <>
+                        <span className="text-film-text font-bold">{frameCount}</span>
+                        {' / '}
                         <span className="text-film-text font-bold">{maxFrames}</span>컷을
                         촬영했습니다.
-                    </p>
-                    <div className="flex gap-3">
-                        <Button
-                            variant="secondary"
-                            fullWidth
-                            onClick={() => setShowFinishConfirm(false)}
-                        >
-                            취소
-                        </Button>
-                        <Button variant="primary" fullWidth onClick={handleFinish}>
-                            마무리
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+                    </>
+                }
+                cancelLabel="취소"
+                confirmLabel="마무리"
+                onConfirm={handleFinish}
+            />
+
             {/* Undo confirmation */}
-            <Modal
+            <ConfirmModal
                 isOpen={showUndoConfirm}
                 onClose={() => setShowUndoConfirm(false)}
                 title="마지막 컷을 되돌릴까요?"
-            >
-                <div className="flex flex-col gap-4">
-                    <p className="text-film-muted font-mono text-sm">
+                message={
+                    <>
                         <span className="text-film-text font-bold">{frameCount}</span>번째 컷 기록이
                         삭제됩니다.
-                    </p>
-                    <div className="flex gap-3">
-                        <Button
-                            variant="secondary"
-                            fullWidth
-                            onClick={() => setShowUndoConfirm(false)}
-                        >
-                            취소
-                        </Button>
-                        <Button
-                            variant="primary"
-                            fullWidth
-                            onClick={() => {
-                                handleUndo();
-                                setShowUndoConfirm(false);
-                            }}
-                        >
-                            되돌리기
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
+                    </>
+                }
+                cancelLabel="취소"
+                confirmLabel="되돌리기"
+                onConfirm={() => {
+                    handleUndo();
+                    setShowUndoConfirm(false);
+                }}
+            />
             {/* Lens swap modal */}
             <Modal isOpen={showLensSwap} onClose={() => setShowLensSwap(false)} title="렌즈 교환">
                 <div className="flex flex-col gap-1">
