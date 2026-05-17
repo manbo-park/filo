@@ -90,6 +90,7 @@ export function RollDetailScreen() {
     const [tsDate, setTsDate] = useState('');
     const [tsTime, setTsTime] = useState('');
     const [copied, setCopied] = useState(false);
+    const [copyError, setCopyError] = useState(false);
     const [toastFading, setToastFading] = useState(false);
     const [showDeleteRoll, setShowDeleteRoll] = useState(false);
     const [showResumeConfirm, setShowResumeConfirm] = useState(false);
@@ -110,14 +111,28 @@ export function RollDetailScreen() {
         [],
     );
 
-    function triggerCopiedToast() {
+    function scheduleToastDismiss() {
         toastTimers.current.forEach((id) => clearTimeout(id));
-        setCopied(true);
         setToastFading(false);
         toastTimers.current = [
             window.setTimeout(() => setToastFading(true), 1800),
-            window.setTimeout(() => setCopied(false), 2400),
+            window.setTimeout(() => {
+                setCopied(false);
+                setCopyError(false);
+            }, 2400),
         ];
+    }
+
+    function triggerCopiedToast() {
+        setCopied(true);
+        setCopyError(false);
+        scheduleToastDismiss();
+    }
+
+    function triggerCopyErrorToast() {
+        setCopyError(true);
+        setCopied(false);
+        scheduleToastDismiss();
     }
 
     if (!roll) {
@@ -252,32 +267,36 @@ export function RollDetailScreen() {
             },
         };
 
-        const json = JSON.stringify(payload);
-        const encoded = new TextEncoder().encode(json);
-        const cs = new CompressionStream('gzip');
-        const writer = cs.writable.getWriter();
-        writer.write(encoded);
-        writer.close();
-        const chunks: Uint8Array[] = [];
-        const reader = cs.readable.getReader();
-        for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-        }
-        const total = chunks.reduce((s, c) => s + c.length, 0);
-        const buf = new Uint8Array(total);
-        let offset = 0;
-        for (const chunk of chunks) {
-            buf.set(chunk, offset);
-            offset += chunk.length;
-        }
-        let binary = '';
-        for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]);
-        const result = 'FILO1:' + btoa(binary);
+        try {
+            const json = JSON.stringify(payload);
+            const encoded = new TextEncoder().encode(json);
+            const cs = new CompressionStream('gzip');
+            const writer = cs.writable.getWriter();
+            writer.write(encoded);
+            writer.close();
+            const chunks: Uint8Array[] = [];
+            const reader = cs.readable.getReader();
+            for (;;) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+            }
+            const total = chunks.reduce((s, c) => s + c.length, 0);
+            const buf = new Uint8Array(total);
+            let offset = 0;
+            for (const chunk of chunks) {
+                buf.set(chunk, offset);
+                offset += chunk.length;
+            }
+            let binary = '';
+            for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]);
+            const result = 'FILO1:' + btoa(binary);
 
-        await navigator.clipboard.writeText(result);
-        triggerCopiedToast();
+            await navigator.clipboard.writeText(result);
+            triggerCopiedToast();
+        } catch {
+            triggerCopyErrorToast();
+        }
     }
 
     function handleInsertFrame() {
@@ -501,10 +520,11 @@ export function RollDetailScreen() {
                             <label className="font-mono text-xs text-film-muted">위치 정보</label>
                             <button
                                 onClick={() => {
-                                    navigator.clipboard.writeText(
-                                        `${editingFrame!.latitude},${editingFrame!.longitude}`,
-                                    );
-                                    triggerCopiedToast();
+                                    navigator.clipboard
+                                        .writeText(
+                                            `${editingFrame!.latitude},${editingFrame!.longitude}`,
+                                        )
+                                        .then(triggerCopiedToast, triggerCopyErrorToast);
                                 }}
                                 className="flex items-center gap-2 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-xs text-film-accent active:opacity-70 transition-opacity text-left"
                             >
@@ -659,6 +679,19 @@ export function RollDetailScreen() {
                         <Check size={13} className="text-film-accent shrink-0" />
                         <span className="font-mono text-xs text-film-text whitespace-nowrap">
                             데이터가 클립보드에 복사되었습니다.
+                        </span>
+                    </div>
+                </div>
+            )}
+
+            {/* Copy error toast */}
+            {copyError && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+                    <div
+                        className={`animate-slide-up flex items-center gap-2 bg-film-surface border border-film-danger rounded-full px-4 py-2 shadow-lg transition-opacity duration-500 ${toastFading ? 'opacity-0' : 'opacity-100'}`}
+                    >
+                        <span className="font-mono text-xs text-film-danger whitespace-nowrap">
+                            복사에 실패했습니다. 브라우저가 지원하지 않을 수 있습니다.
                         </span>
                     </div>
                 </div>
