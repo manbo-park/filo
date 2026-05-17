@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -100,6 +100,25 @@ export function RollDetailScreen() {
     const [editCameraId, setEditCameraId] = useState('');
     const [editMaxFrames, setEditMaxFrames] = useState('');
     const [editRollMemo, setEditRollMemo] = useState('');
+
+    // 토스트 타이머: 재호출 시 기존 타이머를 정리하고, 언마운트 시 모두 해제한다.
+    const toastTimers = useRef<number[]>([]);
+    useEffect(
+        () => () => {
+            toastTimers.current.forEach((id) => clearTimeout(id));
+        },
+        [],
+    );
+
+    function triggerCopiedToast() {
+        toastTimers.current.forEach((id) => clearTimeout(id));
+        setCopied(true);
+        setToastFading(false);
+        toastTimers.current = [
+            window.setTimeout(() => setToastFading(true), 1800),
+            window.setTimeout(() => setCopied(false), 2400),
+        ];
+    }
 
     if (!roll) {
         return (
@@ -258,10 +277,7 @@ export function RollDetailScreen() {
         const result = 'FILO1:' + btoa(binary);
 
         await navigator.clipboard.writeText(result);
-        setCopied(true);
-        setToastFading(false);
-        setTimeout(() => setToastFading(true), 1800);
-        setTimeout(() => setCopied(false), 2400);
+        triggerCopiedToast();
     }
 
     function handleInsertFrame() {
@@ -488,10 +504,7 @@ export function RollDetailScreen() {
                                     navigator.clipboard.writeText(
                                         `${editingFrame!.latitude},${editingFrame!.longitude}`,
                                     );
-                                    setCopied(true);
-                                    setToastFading(false);
-                                    setTimeout(() => setToastFading(true), 1800);
-                                    setTimeout(() => setCopied(false), 2400);
+                                    triggerCopiedToast();
                                 }}
                                 className="flex items-center gap-2 bg-film-surface border border-film-border rounded-lg px-3 py-2 font-mono text-xs text-film-accent active:opacity-70 transition-opacity text-left"
                             >
