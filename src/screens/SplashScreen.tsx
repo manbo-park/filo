@@ -1,31 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
 
+interface PersistApi {
+    hasHydrated: () => boolean;
+    onFinishHydration: (fn: () => void) => () => void;
+}
+
+// 스토어의 persist hydration 완료 여부를 외부 스토어로 구독한다.
+// useSyncExternalStore가 구독 등록 시점에 스냅샷을 재확인하므로,
+// 렌더와 구독 사이에 hydration이 끝나는 race를 별도 처리 없이 안전하게 다룬다.
+function useHydrated(persist: PersistApi) {
+    return useSyncExternalStore(
+        (onStoreChange) => persist.onFinishHydration(onStoreChange),
+        () => persist.hasHydrated(),
+    );
+}
+
 export function SplashScreen() {
     const navigate = useNavigate();
 
-    // persist.hasHydrated()로 초기값 설정 — 이미 hydrated면 true로 시작
-    const [rollsHydrated, setRollsHydrated] = useState(() => useRollStore.persist.hasHydrated());
-    const [masterHydrated, setMasterHydrated] = useState(() =>
-        useMasterDataStore.persist.hasHydrated(),
-    );
-
-    // hydration이 완료될 때 state 업데이트 → re-render 발생
-    useEffect(() => {
-        const unsubRolls = useRollStore.persist.onFinishHydration(() => setRollsHydrated(true));
-        const unsubMaster = useMasterDataStore.persist.onFinishHydration(() =>
-            setMasterHydrated(true),
-        );
-        // 구독 등록 전에 이미 완료된 경우를 처리
-        if (useRollStore.persist.hasHydrated()) setRollsHydrated(true);
-        if (useMasterDataStore.persist.hasHydrated()) setMasterHydrated(true);
-        return () => {
-            unsubRolls();
-            unsubMaster();
-        };
-    }, []);
+    const rollsHydrated = useHydrated(useRollStore.persist);
+    const masterHydrated = useHydrated(useMasterDataStore.persist);
 
     const activeRollId = useRollStore((s) => s.activeRollId);
     const rolls = useRollStore((s) => s.rolls);
