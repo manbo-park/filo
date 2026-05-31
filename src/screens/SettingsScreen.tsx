@@ -4,9 +4,12 @@ import { useSettingsStore } from '@/store/settingsStore';
 
 export function SettingsScreen() {
     const {
-        autoFinishRoll, setAutoFinishRoll,
-        recordLocation, setRecordLocation,
-        carryOverExposure, setCarryOverExposure,
+        autoFinishRoll,
+        setAutoFinishRoll,
+        recordLocation,
+        setRecordLocation,
+        carryOverExposure,
+        setCarryOverExposure,
     } = useSettingsStore();
 
     function handleRecordLocationChange(value: boolean) {
@@ -52,7 +55,7 @@ export function SettingsScreen() {
                             <Switch
                                 checked={carryOverExposure}
                                 onChange={setCarryOverExposure}
-                                label="빠른 기록 시 이전 컷 조리개·셔터값 불러오기"
+                                label="빠른 상세 기록 시 이전 프레임 f·SS값 불러오기"
                             />
                         </div>
                     </div>
