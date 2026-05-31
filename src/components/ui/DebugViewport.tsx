@@ -86,6 +86,13 @@ export function DebugViewport() {
             <div ref={safeTopRef} style={{ position: 'absolute', visibility: 'hidden', height: 'env(safe-area-inset-top)', width: 0 }} />
             <div ref={safeBottomRef} style={{ position: 'absolute', visibility: 'hidden', height: 'env(safe-area-inset-bottom)', width: 0 }} />
 
+            {/* [임시] fixed bottom-0이 닿는 위치(레이아웃 뷰포트 바닥) 마커 */}
+            <div className="fixed bottom-0 inset-x-0 h-1 bg-lime-400 z-[101]" />
+            {/* [임시] 100lvh 바닥 위치 마커 */}
+            <div className="fixed top-0 inset-x-0 h-lvh pointer-events-none z-[101]">
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-sky-400" />
+            </div>
+
             <div className="fixed top-20 left-2 z-[100] rounded-lg bg-black/85 px-3 py-2 font-mono text-[10px] leading-relaxed text-white pointer-events-none">
                 <div className="mb-1 text-neutral-400">live / mount</div>
                 {row('innerH', live.innerH, mount.innerH)}

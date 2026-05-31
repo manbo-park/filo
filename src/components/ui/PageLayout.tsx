@@ -52,16 +52,13 @@ export function PageLayout({
         </div>
     );
 
-    // 촬영 화면처럼 스크롤이 없는 페이지는 상단 고정 + 100lvh 루트로 구성한다.
-    // dvh/innerHeight는 재진입 시 마운트 순간 큰 값으로 잡혔다가 수축해 콘텐츠가
-    // 튀고, svh(작은 뷰포트)는 안정적이지만 상단 인셋만큼 짧아 바닥에 공백이
-    // 남는다. lvh(큰 뷰포트=전체 화면 높이)는 콜드 스타트·재진입 모두에서 항상
-    // 동일한 값으로 안정적이며 화면을 꽉 채운다. 상단은 pt-safe-top, 하단은
-    // pb-safe-bottom이 각각 인셋을 처리한다.
+    // 촬영 화면처럼 스크롤이 없는 페이지는 상단 고정 + 100svh 루트로 구성한다.
     if (noScroll) {
         return (
-            <div className="fixed inset-x-0 top-0 h-lvh flex flex-col overflow-hidden bg-film-bg">
+            <div className="fixed inset-x-0 top-0 h-svh flex flex-col overflow-hidden bg-film-bg">
                 <DebugViewport />
+                {/* [임시] 컨테이너 바닥 위치 확인용 마커 */}
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-red-500 z-[101]" />
                 <header className="shrink-0 bg-film-bg border-b border-film-border px-4 pt-safe-top">
                     {header}
                 </header>
