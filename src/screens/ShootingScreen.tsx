@@ -6,9 +6,11 @@ import { PageLayout } from '@/components/ui/PageLayout';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { QuickRecordModal } from '@/components/roll/QuickRecordModal';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import type { Frame } from '@/types';
 
 export function ShootingScreen() {
     const navigate = useNavigate();
@@ -36,7 +38,12 @@ export function ShootingScreen() {
     const [showOverageModal, setShowOverageModal] = useState(false);
     const [hasShownOverageModal, setHasShownOverageModal] = useState(false);
     const [justRecorded, setJustRecorded] = useState(false);
+    const [showQuickRecord, setShowQuickRecord] = useState(false);
+    const [quickRecordKey, setQuickRecordKey] = useState(0);
+    const [dragDeltaY, setDragDeltaY] = useState(0);
     const cachedPositionRef = useRef<GeolocationPosition | null>(null);
+    const dragStartYRef = useRef<number | null>(null);
+    const isDragRef = useRef(false);
 
     useEffect(() => {
         if (!recordLocation) return;
@@ -71,20 +78,25 @@ export function ShootingScreen() {
     const nextFrame = frameCount + 1;
     const progressPct = Math.min((frameCount / maxFrames) * 100, 100);
 
-    function handleRecord() {
+    function doRecord(patch?: Partial<Pick<Frame, 'aperture' | 'shutterSpeed' | 'memo'>>) {
         const frameId = recordFrame(activeRoll!.id);
         // 렌더 시점의 stale frameCount 대신 스토어의 최신 길이를 사용한다.
         // (연속 탭 시 자동 마무리·초과 모달 분기가 잘못 판단되는 것을 방지)
         const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === activeRoll!.id);
         const newCount = updatedRoll?.frames.length ?? frameCount + 1;
 
-        if (recordLocation && frameId && cachedPositionRef.current) {
-            const pos = cachedPositionRef.current;
-            updateFrame(activeRoll!.id, frameId, {
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
-                locationAccuracy: pos.coords.accuracy,
-            });
+        if (frameId) {
+            const locationPatch =
+                recordLocation && cachedPositionRef.current
+                    ? {
+                          latitude: cachedPositionRef.current.coords.latitude,
+                          longitude: cachedPositionRef.current.coords.longitude,
+                          locationAccuracy: cachedPositionRef.current.coords.accuracy,
+                      }
+                    : {};
+            if (patch || recordLocation) {
+                updateFrame(activeRoll!.id, frameId, { ...locationPatch, ...patch });
+            }
         }
         if (newCount >= maxFrames && autoFinishRoll) {
             finishRoll(activeRoll!.id);
@@ -97,6 +109,48 @@ export function ShootingScreen() {
             setShowOverageModal(true);
             setHasShownOverageModal(true);
         }
+    }
+
+    function handleRecord() {
+        doRecord();
+    }
+
+    function handlePointerDown(e: React.PointerEvent) {
+        dragStartYRef.current = e.clientY;
+        isDragRef.current = false;
+        setDragDeltaY(0);
+    }
+
+    function handlePointerMove(e: React.PointerEvent) {
+        if (dragStartYRef.current === null) return;
+        const delta = Math.max(0, dragStartYRef.current - e.clientY);
+        setDragDeltaY(delta);
+    }
+
+    function handlePointerUp(e: React.PointerEvent) {
+        if (dragStartYRef.current === null) return;
+        const deltaY = dragStartYRef.current - e.clientY;
+        dragStartYRef.current = null;
+        setDragDeltaY(0);
+        if (deltaY >= 60) {
+            isDragRef.current = true;
+            setQuickRecordKey((k) => k + 1);
+            setShowQuickRecord(true);
+        }
+    }
+
+    function handlePointerCancel() {
+        dragStartYRef.current = null;
+        isDragRef.current = false;
+        setDragDeltaY(0);
+    }
+
+    function handleClick() {
+        if (isDragRef.current) {
+            isDragRef.current = false;
+            return;
+        }
+        handleRecord();
     }
 
     function handleUndo() {
@@ -207,19 +261,37 @@ export function ShootingScreen() {
 
                 {/* RECORD button */}
                 <div className="flex flex-col gap-3 pb-safe-bottom">
-                    <button
-                        onClick={handleRecord}
-                        className={[
-                            'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-all duration-150 active:scale-[0.97]',
-                            justRecorded
-                                ? 'accent-gradient-bg text-film-bg'
-                                : 'accent-gradient-border text-film-text',
-                        ]
-                            .filter(Boolean)
-                            .join(' ')}
-                    >
-                        {justRecorded ? '✓ 기록됨' : '⬤  촬영'}
-                    </button>
+                    <div className="relative">
+                        <span
+                            className="absolute inset-x-0 -top-10 flex items-center justify-center font-mono text-xs text-film-muted tracking-widest transition-opacity duration-100"
+                            style={{ opacity: dragDeltaY >= 60 ? 0 : 1 }}
+                        >
+                            ↑ 위로 드래그해서 빠른 상세 기록
+                        </span>
+                        <button
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerCancel}
+                            onClick={handleClick}
+                            style={{
+                                touchAction: 'none',
+                                transform: `translateY(-${Math.min(dragDeltaY * 0.2, 12)}px)`,
+                            }}
+                            className={[
+                                'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-transform duration-75',
+                                justRecorded
+                                    ? 'accent-gradient-bg text-film-bg'
+                                    : dragDeltaY >= 60
+                                      ? 'accent-gradient-bg text-film-bg'
+                                      : 'accent-gradient-border text-film-text',
+                            ]
+                                .filter(Boolean)
+                                .join(' ')}
+                        >
+                            {justRecorded ? '✓ 기록됨' : dragDeltaY >= 60 ? '빠른 상세 기록' : '기록'}
+                        </button>
+                    </div>
 
                     <div className="flex gap-3">
                         <Button
@@ -302,6 +374,14 @@ export function ShootingScreen() {
                     setShowUndoConfirm(false);
                 }}
             />
+            <QuickRecordModal
+                key={quickRecordKey}
+                rollId={activeRoll.id}
+                isOpen={showQuickRecord}
+                onClose={() => setShowQuickRecord(false)}
+                onSave={(patch) => doRecord(patch)}
+            />
+
             {/* Lens swap modal */}
             <Modal isOpen={showLensSwap} onClose={() => setShowLensSwap(false)} title="렌즈 교환">
                 <div className="flex flex-col gap-1">
