@@ -39,8 +39,18 @@ export function SplashScreen() {
         return () => clearTimeout(timer);
     }, [rollsHydrated, masterHydrated, activeRollId, rolls, navigate]);
 
+    // black 상태바에서 웹 뷰포트는 상단 상태바(시스템 영역) 아래에서 시작하므로,
+    // 그냥 중앙 정렬하면 로고가 물리 화면 중심보다 상태바 높이의 절반만큼 아래로
+    // 치우친다. 상단 시스템 영역 높이(screen.height - innerHeight)만큼 하단 패딩을
+    // 주어 물리 화면 기준 중앙에 오도록 보정한다.
+    const topChrome =
+        typeof window !== 'undefined' ? Math.max(0, window.screen.height - window.innerHeight) : 0;
+
     return (
-        <div className="fixed inset-0 bg-film-bg flex flex-col items-center justify-center gap-6 animate-fade-in">
+        <div
+            className="fixed inset-0 bg-film-bg flex flex-col items-center justify-center gap-6 animate-fade-in"
+            style={{ paddingBottom: topChrome }}
+        >
             {/* Logo */}
             <img src="/filo-logo-white-with-shadow.png" alt="filo" className="h-40" />
 
