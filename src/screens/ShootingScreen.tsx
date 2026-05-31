@@ -242,7 +242,8 @@ export function ShootingScreen() {
                 </div>
 
                 {/* Frame counter — big display */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                {/* pb-14: 버튼 위 절대배치된 힌트가 시각적으로 잠식하는 아래 여백을 보정해 카운터를 위로 끌어올린다 */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 pb-14">
                     <span className="text-film-muted font-mono text-xs uppercase tracking-widest">
                         다음 컷
                     </span>
