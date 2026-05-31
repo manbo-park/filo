@@ -210,7 +210,7 @@ export function RollDetailScreen() {
                     <div className="flex items-center justify-between mb-2">
                         <button
                             onClick={() => setReversedFrames((v) => !v)}
-                            className="flex items-center gap-1 font-mono text-xs text-film-muted hover:text-film-text transition-colors"
+                            className="flex items-center gap-1 font-mono text-xs text-film-muted hover:text-film-text focus:text-film-muted active:text-film-muted transition-colors outline-none"
                         >
                             <ArrowUpDown size={12} />
                             {reversedFrames ? '최신 순' : '오래된 순'}
