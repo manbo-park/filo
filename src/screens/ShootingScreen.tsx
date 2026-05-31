@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, List, Film, Camera, RefreshCw } from 'lucide-react';
@@ -36,6 +36,17 @@ export function ShootingScreen() {
     const [showOverageModal, setShowOverageModal] = useState(false);
     const [hasShownOverageModal, setHasShownOverageModal] = useState(false);
     const [justRecorded, setJustRecorded] = useState(false);
+    const cachedPositionRef = useRef<GeolocationPosition | null>(null);
+
+    useEffect(() => {
+        if (!recordLocation) return;
+        const watchId = navigator.geolocation.watchPosition(
+            (pos) => { cachedPositionRef.current = pos; },
+            () => {},
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
+        );
+        return () => navigator.geolocation.clearWatch(watchId);
+    }, [recordLocation]);
 
     if (!activeRoll) {
         return (
@@ -67,18 +78,13 @@ export function ShootingScreen() {
         const updatedRoll = useRollStore.getState().rolls.find((r) => r.id === activeRoll!.id);
         const newCount = updatedRoll?.frames.length ?? frameCount + 1;
 
-        if (recordLocation && frameId) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    updateFrame(activeRoll!.id, frameId, {
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude,
-                        locationAccuracy: pos.coords.accuracy,
-                    });
-                },
-                () => {},
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
-            );
+        if (recordLocation && frameId && cachedPositionRef.current) {
+            const pos = cachedPositionRef.current;
+            updateFrame(activeRoll!.id, frameId, {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                locationAccuracy: pos.coords.accuracy,
+            });
         }
         if (newCount >= maxFrames && autoFinishRoll) {
             finishRoll(activeRoll!.id);
