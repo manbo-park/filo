@@ -40,6 +40,7 @@ export function ShootingScreen() {
     const [justRecorded, setJustRecorded] = useState(false);
     const [showQuickRecord, setShowQuickRecord] = useState(false);
     const [quickRecordKey, setQuickRecordKey] = useState(0);
+    const [dragDeltaY, setDragDeltaY] = useState(0);
     const cachedPositionRef = useRef<GeolocationPosition | null>(null);
     const dragStartYRef = useRef<number | null>(null);
     const isDragRef = useRef(false);
@@ -117,17 +118,31 @@ export function ShootingScreen() {
     function handlePointerDown(e: React.PointerEvent) {
         dragStartYRef.current = e.clientY;
         isDragRef.current = false;
+        setDragDeltaY(0);
+    }
+
+    function handlePointerMove(e: React.PointerEvent) {
+        if (dragStartYRef.current === null) return;
+        const delta = Math.max(0, dragStartYRef.current - e.clientY);
+        setDragDeltaY(delta);
     }
 
     function handlePointerUp(e: React.PointerEvent) {
         if (dragStartYRef.current === null) return;
         const deltaY = dragStartYRef.current - e.clientY;
         dragStartYRef.current = null;
+        setDragDeltaY(0);
         if (deltaY >= 60) {
             isDragRef.current = true;
             setQuickRecordKey((k) => k + 1);
             setShowQuickRecord(true);
         }
+    }
+
+    function handlePointerCancel() {
+        dragStartYRef.current = null;
+        isDragRef.current = false;
+        setDragDeltaY(0);
     }
 
     function handleClick() {
@@ -246,22 +261,37 @@ export function ShootingScreen() {
 
                 {/* RECORD button */}
                 <div className="flex flex-col gap-3 pb-safe-bottom">
-                    <button
-                        onPointerDown={handlePointerDown}
-                        onPointerUp={handlePointerUp}
-                        onClick={handleClick}
-                        style={{ touchAction: 'none' }}
-                        className={[
-                            'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-all duration-150 active:scale-[0.97]',
-                            justRecorded
-                                ? 'accent-gradient-bg text-film-bg'
-                                : 'accent-gradient-border text-film-text',
-                        ]
-                            .filter(Boolean)
-                            .join(' ')}
-                    >
-                        {justRecorded ? '✓ 기록됨' : '⬤  촬영'}
-                    </button>
+                    <div className="relative">
+                        <span
+                            className="absolute inset-x-0 -top-10 flex items-center justify-center font-mono text-xs text-film-accent tracking-widest transition-opacity duration-100"
+                            style={{ opacity: dragDeltaY >= 60 ? 0 : Math.min(dragDeltaY / 30, 1) }}
+                        >
+                            ↑ 상세 기록
+                        </span>
+                        <button
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={handlePointerMove}
+                            onPointerUp={handlePointerUp}
+                            onPointerCancel={handlePointerCancel}
+                            onClick={handleClick}
+                            style={{
+                                touchAction: 'none',
+                                transform: `translateY(-${Math.min(dragDeltaY * 0.2, 12)}px)`,
+                            }}
+                            className={[
+                                'w-full py-6 rounded-2xl font-mono font-bold text-xl tracking-widest uppercase transition-transform duration-75',
+                                justRecorded
+                                    ? 'accent-gradient-bg text-film-bg'
+                                    : dragDeltaY >= 60
+                                      ? 'accent-gradient-bg text-film-bg'
+                                      : 'accent-gradient-border text-film-text',
+                            ]
+                                .filter(Boolean)
+                                .join(' ')}
+                        >
+                            {justRecorded ? '✓ 기록됨' : dragDeltaY >= 60 ? '↑ 상세 기록' : '⬤  기록'}
+                        </button>
+                    </div>
 
                     <div className="flex gap-3">
                         <Button
