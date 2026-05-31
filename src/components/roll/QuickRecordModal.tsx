@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { APERTURE_OPTIONS, SHUTTER_OPTIONS } from '@/lib/frameOptions';
+import { getApertureOptions, SHUTTER_OPTIONS } from '@/lib/frameOptions';
 import { useRollStore } from '@/store/rollStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import type { Frame } from '@/types';
@@ -47,7 +47,7 @@ export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecor
                     label="조리개"
                     value={aperture}
                     onChange={(e) => setAperture(e.target.value)}
-                    options={APERTURE_OPTIONS}
+                    options={getApertureOptions(true)}
                     placeholder="조리개 선택..."
                 />
                 <Select

@@ -10,7 +10,7 @@ import { useClipboardToast } from '@/hooks/useClipboardToast';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
 import { toDateStr, toTimeStr, formatCoord } from '@/lib/format';
-import { APERTURE_OPTIONS, SHUTTER_OPTIONS } from '@/lib/frameOptions';
+import { getApertureOptions, SHUTTER_OPTIONS } from '@/lib/frameOptions';
 import type { Frame } from '@/types';
 
 
@@ -106,7 +106,7 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
                         label="조리개"
                         value={aperture}
                         onChange={(e) => setAperture(e.target.value)}
-                        options={APERTURE_OPTIONS}
+                        options={getApertureOptions(true)}
                         placeholder="조리개 선택..."
                     />
                     <Select
