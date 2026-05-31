@@ -9,8 +9,9 @@ import { CopyToast } from '@/components/ui/CopyToast';
 import { useClipboardToast } from '@/hooks/useClipboardToast';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { toDateStr, toTimeStr, formatCoord } from '@/lib/format';
-import { APERTURE_OPTIONS, SHUTTER_OPTIONS } from '@/lib/frameOptions';
+import { getApertureOptions, SHUTTER_OPTIONS } from '@/lib/frameOptions';
 import type { Frame } from '@/types';
 
 
@@ -25,6 +26,7 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
         useShallow((s) => ({ updateFrame: s.updateFrame, deleteFrame: s.deleteFrame })),
     );
     const lenses = useMasterDataStore((s) => s.lenses);
+    const halfStopAperture = useSettingsStore((s) => s.halfStopAperture);
     const prevFrameTimestamp = useRollStore((s) => {
         if (!frame) return null;
         const roll = s.rolls.find((r) => r.id === rollId);
@@ -106,7 +108,7 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
                         label="조리개"
                         value={aperture}
                         onChange={(e) => setAperture(e.target.value)}
-                        options={APERTURE_OPTIONS}
+                        options={getApertureOptions(halfStopAperture, aperture)}
                         placeholder="조리개 선택..."
                     />
                     <Select
