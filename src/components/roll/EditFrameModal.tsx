@@ -10,40 +10,8 @@ import { useClipboardToast } from '@/hooks/useClipboardToast';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
 import { toDateStr, toTimeStr, formatCoord } from '@/lib/format';
+import { APERTURE_OPTIONS, SHUTTER_OPTIONS } from '@/lib/frameOptions';
 import type { Frame } from '@/types';
-
-const APERTURE_OPTIONS = [
-    'f/1.0',
-    'f/1.2',
-    'f/1.4',
-    'f/1.8',
-    'f/2',
-    'f/2.8',
-    'f/4',
-    'f/5.6',
-    'f/8',
-    'f/11',
-    'f/16',
-    'f/22',
-    'f/32',
-].map((v) => ({ value: v, label: v }));
-
-const SHUTTER_OPTIONS = [
-    '1',
-    '1/2',
-    '1/4',
-    '1/8',
-    '1/15',
-    '1/30',
-    '1/60',
-    '1/125',
-    '1/250',
-    '1/500',
-    '1/1000',
-    '1/2000',
-    '1/4000',
-    'B',
-].map((v) => ({ value: v, label: v }));
 
 
 interface EditFrameModalProps {
