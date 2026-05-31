@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Trash2, Play, Plus, Pencil, Camera, FileText, ClipboardCopy, Check } from 'lucide-react';
+import { Trash2, Play, Plus, Pencil, Camera, FileText, ClipboardCopy, Check, ArrowUpDown } from 'lucide-react';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -32,6 +32,7 @@ export function RollDetailScreen() {
     );
 
     const [editingFrame, setEditingFrame] = useState<Frame | null>(null);
+    const [reversedFrames, setReversedFrames] = useState(false);
     const { copied, copyError, fading: toastFading, triggerCopied, triggerCopyError } =
         useClipboardToast();
     const [showDeleteRoll, setShowDeleteRoll] = useState(false);
@@ -204,7 +205,14 @@ export function RollDetailScreen() {
 
                 {/* Frames list */}
                 {roll.frames.length > 0 && (
-                    <div className="flex items-center justify-end mb-2">
+                    <div className="flex items-center justify-between mb-2">
+                        <button
+                            onClick={() => setReversedFrames((v) => !v)}
+                            className="flex items-center gap-1 font-mono text-xs text-film-muted hover:text-film-text transition-colors"
+                        >
+                            <ArrowUpDown size={12} />
+                            {reversedFrames ? '역순' : '번호순'}
+                        </button>
                         <button
                             onClick={() => setShowAddFrame(true)}
                             className="flex items-center gap-1 font-mono text-xs text-film-accent hover:opacity-70 transition-opacity"
@@ -220,7 +228,7 @@ export function RollDetailScreen() {
                     </div>
                 ) : (
                     <div className="bg-film-surface border border-film-border rounded-xl px-4">
-                        {roll.frames.map((frame) => (
+                        {(reversedFrames ? [...roll.frames].reverse() : roll.frames).map((frame) => (
                             <FrameItem
                                 key={frame.id}
                                 frame={frame}
