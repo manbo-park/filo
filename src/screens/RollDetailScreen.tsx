@@ -13,6 +13,7 @@ import { EditRollModal } from '@/components/roll/EditRollModal';
 import { AddFrameModal } from '@/components/roll/AddFrameModal';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { buildExifPayload } from '@/lib/exifPayload';
 import type { Frame } from '@/types';
 
@@ -30,9 +31,10 @@ export function RollDetailScreen() {
     const { films, cameras, lenses } = useMasterDataStore(
         useShallow((s) => ({ films: s.films, cameras: s.cameras, lenses: s.lenses })),
     );
+    const sortFramesNewestFirst = useSettingsStore((s) => s.sortFramesNewestFirst);
 
     const [editingFrame, setEditingFrame] = useState<Frame | null>(null);
-    const [reversedFrames, setReversedFrames] = useState(false);
+    const [reversedFrames, setReversedFrames] = useState(sortFramesNewestFirst);
     const { copied, copyError, fading: toastFading, triggerCopied, triggerCopyError } =
         useClipboardToast();
     const [showDeleteRoll, setShowDeleteRoll] = useState(false);
@@ -211,7 +213,7 @@ export function RollDetailScreen() {
                             className="flex items-center gap-1 font-mono text-xs text-film-muted hover:text-film-text transition-colors"
                         >
                             <ArrowUpDown size={12} />
-                            {reversedFrames ? '역순' : '번호순'}
+                            {reversedFrames ? '최신 순' : '오래된 순'}
                         </button>
                         <button
                             onClick={() => setShowAddFrame(true)}

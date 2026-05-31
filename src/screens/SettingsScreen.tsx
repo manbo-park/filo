@@ -12,6 +12,8 @@ export function SettingsScreen() {
         setCarryOverExposure,
         halfStopAperture,
         setHalfStopAperture,
+        sortFramesNewestFirst,
+        setSortFramesNewestFirst,
     } = useSettingsStore();
 
     function handleRecordLocationChange(value: boolean) {
@@ -35,9 +37,9 @@ export function SettingsScreen() {
                     </p>
                     <div className="bg-film-surface border border-film-border rounded-xl px-4 py-3">
                         <Switch
-                            checked={autoFinishRoll}
-                            onChange={setAutoFinishRoll}
-                            label="최대 프레임 수 도달 시 롤 자동 마무리"
+                            checked={sortFramesNewestFirst}
+                            onChange={setSortFramesNewestFirst}
+                            label="프레임을 최신 순으로 정렬"
                         />
                     </div>
                 </div>
@@ -46,6 +48,13 @@ export function SettingsScreen() {
                         촬영
                     </p>
                     <div className="bg-film-surface border border-film-border rounded-xl px-4 divide-y divide-film-border">
+                        <div className="py-3">
+                            <Switch
+                                checked={autoFinishRoll}
+                                onChange={setAutoFinishRoll}
+                                label="최대 프레임 수 도달 시 롤 자동 마무리"
+                            />
+                        </div>
                         <div className="py-3">
                             <Switch
                                 checked={recordLocation}
