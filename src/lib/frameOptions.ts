@@ -32,12 +32,15 @@ const toOption = (v: string) => ({ value: v, label: v });
 const apertureValue = (v: string) => parseFloat(v.slice(2));
 
 // 1/2스탑 노출 여부에 따라 조리개 옵션 목록을 생성한다.
-export function getApertureOptions(includeHalfStops: boolean) {
+// 이미 기록된 값(currentValue)이 목록에 없으면 표시·보존을 위해 포함한다.
+export function getApertureOptions(includeHalfStops: boolean, currentValue?: string) {
     const values = includeHalfStops
-        ? [...FULL_STOP_APERTURES, ...HALF_STOP_APERTURES].sort(
-              (a, b) => apertureValue(a) - apertureValue(b),
-          )
-        : FULL_STOP_APERTURES;
+        ? [...FULL_STOP_APERTURES, ...HALF_STOP_APERTURES]
+        : [...FULL_STOP_APERTURES];
+    if (currentValue && !values.includes(currentValue)) {
+        values.push(currentValue);
+    }
+    values.sort((a, b) => apertureValue(a) - apertureValue(b));
     return values.map(toOption);
 }
 

@@ -8,6 +8,8 @@ interface SettingsState {
     setRecordLocation: (value: boolean) => void;
     carryOverExposure: boolean;
     setCarryOverExposure: (value: boolean) => void;
+    halfStopAperture: boolean;
+    setHalfStopAperture: (value: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -19,6 +21,8 @@ export const useSettingsStore = create<SettingsState>()(
             setRecordLocation: (value) => set({ recordLocation: value }),
             carryOverExposure: true,
             setCarryOverExposure: (value) => set({ carryOverExposure: value }),
+            halfStopAperture: false,
+            setHalfStopAperture: (value) => set({ halfStopAperture: value }),
         }),
         {
             name: 'filo-settings',

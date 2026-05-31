@@ -17,6 +17,7 @@ interface QuickRecordModalProps {
 
 export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecordModalProps) {
     const carryOverExposure = useSettingsStore((s) => s.carryOverExposure);
+    const halfStopAperture = useSettingsStore((s) => s.halfStopAperture);
     const lastFrame = useRollStore((s) => {
         const roll = s.rolls.find((r) => r.id === rollId);
         const frames = roll?.frames;
@@ -47,7 +48,7 @@ export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecor
                     label="조리개"
                     value={aperture}
                     onChange={(e) => setAperture(e.target.value)}
-                    options={getApertureOptions(true)}
+                    options={getApertureOptions(halfStopAperture, aperture)}
                     placeholder="조리개 선택..."
                 />
                 <Select
