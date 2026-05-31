@@ -10,6 +10,8 @@ interface SettingsState {
     setCarryOverExposure: (value: boolean) => void;
     halfStopAperture: boolean;
     setHalfStopAperture: (value: boolean) => void;
+    sortFramesNewestFirst: boolean;
+    setSortFramesNewestFirst: (value: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -23,6 +25,8 @@ export const useSettingsStore = create<SettingsState>()(
             setCarryOverExposure: (value) => set({ carryOverExposure: value }),
             halfStopAperture: false,
             setHalfStopAperture: (value) => set({ halfStopAperture: value }),
+            sortFramesNewestFirst: false,
+            setSortFramesNewestFirst: (value) => set({ sortFramesNewestFirst: value }),
         }),
         {
             name: 'filo-settings',
