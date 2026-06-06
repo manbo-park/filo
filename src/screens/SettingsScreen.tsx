@@ -12,8 +12,6 @@ export function SettingsScreen() {
         setRecordLocation,
         carryOverExposure,
         setCarryOverExposure,
-        halfStopAperture,
-        setHalfStopAperture,
         sortFramesNewestFirst,
         setSortFramesNewestFirst,
     } = useSettingsStore();
@@ -81,13 +79,6 @@ export function SettingsScreen() {
                                 checked={carryOverExposure}
                                 onChange={setCarryOverExposure}
                                 label="빠른 상세 기록 시 이전 프레임 f·SS값 불러오기"
-                            />
-                        </div>
-                        <div className="py-3">
-                            <Switch
-                                checked={halfStopAperture}
-                                onChange={setHalfStopAperture}
-                                label="조리개 1/2스탑 단위 표시"
                             />
                         </div>
                     </div>

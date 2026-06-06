@@ -9,7 +9,6 @@ import { CopyToast } from '@/components/ui/CopyToast';
 import { useClipboardToast } from '@/hooks/useClipboardToast';
 import { useRollStore } from '@/store/rollStore';
 import { useMasterDataStore } from '@/store/masterDataStore';
-import { useSettingsStore } from '@/store/settingsStore';
 import { toDateStr, toTimeStr, formatCoord } from '@/lib/format';
 import { getApertureOptions, SHUTTER_OPTIONS } from '@/lib/frameOptions';
 import type { Frame } from '@/types';
@@ -26,7 +25,6 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
         useShallow((s) => ({ updateFrame: s.updateFrame, deleteFrame: s.deleteFrame })),
     );
     const lenses = useMasterDataStore((s) => s.lenses);
-    const halfStopAperture = useSettingsStore((s) => s.halfStopAperture);
     const prevFrameTimestamp = useRollStore((s) => {
         if (!frame) return null;
         const roll = s.rolls.find((r) => r.id === rollId);
@@ -44,6 +42,9 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
         frame?.timestamp ? toTimeStr(frame.timestamp) : '',
     );
     const { copied, copyError, fading, triggerCopied, triggerCopyError } = useClipboardToast();
+
+    const lens = lenses.find((l) => l.id === lensId);
+    const apertureStop = lens?.apertureStop ?? '1';
 
     const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null;
     const tsError = !!(
@@ -108,7 +109,7 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
                         label="조리개"
                         value={aperture}
                         onChange={(e) => setAperture(e.target.value)}
-                        options={getApertureOptions(halfStopAperture, aperture)}
+                        options={getApertureOptions(apertureStop, lens?.maxAperture, aperture)}
                         placeholder="조리개 선택..."
                     />
                     <Select

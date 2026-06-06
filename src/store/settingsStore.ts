@@ -10,8 +10,6 @@ interface SettingsState {
     setRecordLocation: (value: boolean) => void;
     carryOverExposure: boolean;
     setCarryOverExposure: (value: boolean) => void;
-    halfStopAperture: boolean;
-    setHalfStopAperture: (value: boolean) => void;
     sortFramesNewestFirst: boolean;
     setSortFramesNewestFirst: (value: boolean) => void;
 }
@@ -27,14 +25,20 @@ export const useSettingsStore = create<SettingsState>()(
             setRecordLocation: (value) => set({ recordLocation: value }),
             carryOverExposure: true,
             setCarryOverExposure: (value) => set({ carryOverExposure: value }),
-            halfStopAperture: false,
-            setHalfStopAperture: (value) => set({ halfStopAperture: value }),
             sortFramesNewestFirst: false,
             setSortFramesNewestFirst: (value) => set({ sortFramesNewestFirst: value }),
         }),
         {
             name: 'filo-settings',
             storage: createJSONStorage(() => localStorage),
+            version: 2,
+            // 조리개 스탑 단위는 렌즈 데이터로 이전됨. 더 이상 쓰지 않는 키를 정리한다.
+            migrate: (persisted) => {
+                const state = (persisted ?? {}) as Record<string, unknown>;
+                delete state.halfStopAperture;
+                delete state.apertureStop;
+                return state as unknown as SettingsState;
+            },
         },
     ),
 );

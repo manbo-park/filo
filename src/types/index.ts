@@ -13,11 +13,14 @@ export interface Camera {
     brand?: string;
 }
 
+// 조리개 스탑 단위 (드롭다운 노출 간격)
+export type ApertureStop = '1' | '1/2' | '1/3';
+
 export interface Lens {
     id: string;
     name: string; // e.g. "35mm f/2"
-    focalLength?: number;
     maxAperture?: number;
+    apertureStop: ApertureStop; // 조리개 드롭다운 노출 단위
 }
 
 // ─── Roll & Frame ─────────────────────────────────────────────────────────────
