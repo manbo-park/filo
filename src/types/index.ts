@@ -21,7 +21,7 @@ export interface Lens {
     name: string; // e.g. "35mm f/2"
     focalLength?: number;
     maxAperture?: number;
-    apertureStop?: ApertureStop; // 미설정 시 전역 설정값으로 fallback
+    apertureStop: ApertureStop; // 조리개 드롭다운 노출 단위
 }
 
 // ─── Roll & Frame ─────────────────────────────────────────────────────────────

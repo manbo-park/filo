@@ -113,7 +113,7 @@ export function MasterDataFormModal({ type, initial, onClose, onSubmit }: Master
                             </div>
                         </div>
                         <Input
-                            label="최대개방 f값 (선택)"
+                            label="최대개방 조리개값 (선택)"
                             type="number"
                             step="0.1"
                             value={maxAperture}

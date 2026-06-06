@@ -58,13 +58,30 @@ export const useMasterDataStore = create<MasterDataState>()(
                 })),
             deleteLens: (id) => set((s) => ({ lenses: s.lenses.filter((l) => l.id !== id) })),
 
-            importMasterData: (data) => set({ ...data }),
+            importMasterData: (data) =>
+                set({
+                    films: data.films,
+                    cameras: data.cameras,
+                    // 구버전 데이터에 없을 수 있는 apertureStop을 보정한다.
+                    lenses: data.lenses.map((l) => ({ ...l, apertureStop: l.apertureStop ?? '1' })),
+                }),
 
             clearAll: () => set({ films: [], cameras: [], lenses: [] }),
         }),
         {
             name: 'filo-master',
             storage: createJSONStorage(() => idbStorage),
+            version: 1,
+            // apertureStop 도입 이전 렌즈는 기본 1스탑으로 백필한다.
+            migrate: (persisted) => {
+                const state = (persisted ?? {}) as {
+                    lenses?: Array<Record<string, unknown>>;
+                } & Record<string, unknown>;
+                if (Array.isArray(state.lenses)) {
+                    state.lenses = state.lenses.map((l) => ({ apertureStop: '1', ...l }));
+                }
+                return state as unknown as MasterDataState;
+            },
         },
     ),
 );

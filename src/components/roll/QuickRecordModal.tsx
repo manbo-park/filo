@@ -18,7 +18,6 @@ interface QuickRecordModalProps {
 
 export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecordModalProps) {
     const carryOverExposure = useSettingsStore((s) => s.carryOverExposure);
-    const settingsApertureStop = useSettingsStore((s) => s.apertureStop);
     const lenses = useMasterDataStore((s) => s.lenses);
     const currentLensId = useRollStore(
         (s) => s.rolls.find((r) => r.id === rollId)?.currentLensId,
@@ -30,7 +29,7 @@ export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecor
     });
 
     const lens = lenses.find((l) => l.id === currentLensId);
-    const apertureStop = lens?.apertureStop ?? settingsApertureStop;
+    const apertureStop = lens?.apertureStop ?? '1';
 
     const [aperture, setAperture] = useState(() =>
         carryOverExposure ? (lastFrame?.aperture ?? '') : '',

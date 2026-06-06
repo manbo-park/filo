@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { ApertureStop } from '@/types';
 
 interface SettingsState {
     autoNavigateToShooting: boolean;
@@ -11,8 +10,6 @@ interface SettingsState {
     setRecordLocation: (value: boolean) => void;
     carryOverExposure: boolean;
     setCarryOverExposure: (value: boolean) => void;
-    apertureStop: ApertureStop;
-    setApertureStop: (value: ApertureStop) => void;
     sortFramesNewestFirst: boolean;
     setSortFramesNewestFirst: (value: boolean) => void;
 }
@@ -28,22 +25,18 @@ export const useSettingsStore = create<SettingsState>()(
             setRecordLocation: (value) => set({ recordLocation: value }),
             carryOverExposure: true,
             setCarryOverExposure: (value) => set({ carryOverExposure: value }),
-            apertureStop: '1',
-            setApertureStop: (value) => set({ apertureStop: value }),
             sortFramesNewestFirst: false,
             setSortFramesNewestFirst: (value) => set({ sortFramesNewestFirst: value }),
         }),
         {
             name: 'filo-settings',
             storage: createJSONStorage(() => localStorage),
-            version: 1,
-            // v0의 halfStopAperture(boolean)을 apertureStop으로 변환한다.
-            migrate: (persisted, version) => {
+            version: 2,
+            // 조리개 스탑 단위는 렌즈 데이터로 이전됨. 더 이상 쓰지 않는 키를 정리한다.
+            migrate: (persisted) => {
                 const state = (persisted ?? {}) as Record<string, unknown>;
-                if (version < 1) {
-                    state.apertureStop = state.halfStopAperture ? '1/2' : '1';
-                    delete state.halfStopAperture;
-                }
+                delete state.halfStopAperture;
+                delete state.apertureStop;
                 return state as unknown as SettingsState;
             },
         },

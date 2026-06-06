@@ -11,9 +11,9 @@ export function LensRow({ lens, onEdit, onDelete }: LensRowProps) {
     return (
         <MasterRow onEdit={onEdit} onDelete={onDelete}>
             <span className="text-film-text font-mono text-sm">{lens.name}</span>
-            {lens.apertureStop && (
+            {lens.apertureStop && lens.apertureStop !== '1' && (
                 <span className="text-film-muted font-mono text-xs ml-2">
-                    {lens.apertureStop}스탑
+                    {lens.apertureStop} 스탑 단위
                 </span>
             )}
             {lens.maxAperture != null && (

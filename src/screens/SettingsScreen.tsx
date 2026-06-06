@@ -1,7 +1,6 @@
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Switch } from '@/components/ui/Switch';
 import { useSettingsStore } from '@/store/settingsStore';
-import type { ApertureStop } from '@/types';
 
 export function SettingsScreen() {
     const {
@@ -13,13 +12,9 @@ export function SettingsScreen() {
         setRecordLocation,
         carryOverExposure,
         setCarryOverExposure,
-        apertureStop,
-        setApertureStop,
         sortFramesNewestFirst,
         setSortFramesNewestFirst,
     } = useSettingsStore();
-
-    const apertureStops: ApertureStop[] = ['1', '1/2', '1/3'];
 
     function handleRecordLocationChange(value: boolean) {
         if (!value) {
@@ -85,32 +80,6 @@ export function SettingsScreen() {
                                 onChange={setCarryOverExposure}
                                 label="빠른 상세 기록 시 이전 프레임 f·SS값 불러오기"
                             />
-                        </div>
-                        <div className="py-3 flex flex-col gap-2">
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="text-sm text-film-text">
-                                    조리개 기본 스탑 단위
-                                </span>
-                                <div className="grid grid-cols-3 border border-film-border rounded-lg overflow-hidden shrink-0">
-                                    {apertureStops.map((stop) => (
-                                        <button
-                                            key={stop}
-                                            onClick={() => setApertureStop(stop)}
-                                            className={[
-                                                'px-3 py-1.5 font-mono text-xs text-center transition-colors',
-                                                apertureStop === stop
-                                                    ? 'accent-gradient-bg text-film-bg'
-                                                    : 'text-film-muted hover:text-film-text',
-                                            ].join(' ')}
-                                        >
-                                            {stop}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <p className="font-mono text-xs text-film-muted">
-                                렌즈에 스탑 단위가 등록되지 않은 경우에만 적용됩니다
-                            </p>
                         </div>
                     </div>
                 </div>
