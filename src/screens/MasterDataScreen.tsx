@@ -6,8 +6,11 @@ import { FilmRow } from '@/components/master/FilmRow';
 import { CameraRow } from '@/components/master/CameraRow';
 import { LensRow } from '@/components/master/LensRow';
 import { useMasterDataStore } from '@/store/masterDataStore';
+import type { ApertureStop } from '@/types';
 
 type Tab = 'films' | 'cameras' | 'lenses';
+
+const APERTURE_STOPS: ApertureStop[] = ['1', '1/2', '1/3'];
 
 export function MasterDataScreen() {
     const [tab, setTab] = useState<Tab>('films');
@@ -32,6 +35,16 @@ export function MasterDataScreen() {
     const [newName, setNewName] = useState('');
     const [newIso, setNewIso] = useState('400');
     const [newBrand, setNewBrand] = useState('');
+    const [newApertureStop, setNewApertureStop] = useState<ApertureStop>('1');
+    const [newMaxAperture, setNewMaxAperture] = useState('');
+
+    function resetAddForm() {
+        setNewName('');
+        setNewIso('400');
+        setNewBrand('');
+        setNewApertureStop('1');
+        setNewMaxAperture('');
+    }
 
     function handleAdd() {
         if (!newName.trim()) return;
@@ -40,11 +53,14 @@ export function MasterDataScreen() {
         } else if (tab === 'cameras') {
             addCamera({ name: newName.trim(), ...(newBrand.trim() && { brand: newBrand.trim() }) });
         } else {
-            addLens({ name: newName.trim() });
+            const parsedMax = parseFloat(newMaxAperture);
+            addLens({
+                name: newName.trim(),
+                apertureStop: newApertureStop,
+                ...(Number.isFinite(parsedMax) && { maxAperture: parsedMax }),
+            });
         }
-        setNewName('');
-        setNewIso('400');
-        setNewBrand('');
+        resetAddForm();
     }
 
     const tabs: { key: Tab; label: string; count: number }[] = [
@@ -74,9 +90,7 @@ export function MasterDataScreen() {
                         key={key}
                         onClick={() => {
                             setTab(key);
-                            setNewName('');
-                            setNewIso('400');
-                            setNewBrand('');
+                            resetAddForm();
                         }}
                         className={[
                             'flex-1 py-3 font-mono text-xs uppercase tracking-widest transition-colors',
@@ -121,7 +135,8 @@ export function MasterDataScreen() {
 
             <div className="px-4 py-4">
                 {/* Add new form */}
-                <div className="flex gap-2 mb-5">
+                <div className="mb-5 flex flex-col gap-2">
+                    <div className="flex gap-2">
                     <input
                         className="flex-1 bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors"
                         placeholder={
@@ -160,6 +175,37 @@ export function MasterDataScreen() {
                     >
                         <PlusCircle size={24} />
                     </button>
+                    </div>
+                    {tab === 'lenses' && (
+                        <div className="flex gap-2">
+                            <div className="flex border border-film-border rounded-lg overflow-hidden shrink-0">
+                                {APERTURE_STOPS.map((stop) => (
+                                    <button
+                                        key={stop}
+                                        type="button"
+                                        onClick={() => setNewApertureStop(stop)}
+                                        className={[
+                                            'px-3 py-2.5 font-mono text-sm transition-colors',
+                                            newApertureStop === stop
+                                                ? 'bg-film-accent text-film-bg'
+                                                : 'text-film-muted hover:text-film-text',
+                                        ].join(' ')}
+                                    >
+                                        {stop}
+                                    </button>
+                                ))}
+                            </div>
+                            <input
+                                className="flex-1 min-w-0 bg-film-bg border border-film-border rounded-lg px-3 py-2.5 text-film-text font-mono text-sm placeholder-film-muted focus:outline-none focus:border-film-accent transition-colors"
+                                placeholder="최대개방 f값 (선택)"
+                                value={newMaxAperture}
+                                onChange={(e) => setNewMaxAperture(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                                type="number"
+                                step="0.1"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* List */}
