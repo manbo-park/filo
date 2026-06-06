@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { getApertureOptions, SHUTTER_OPTIONS } from '@/lib/frameOptions';
 import { useRollStore } from '@/store/rollStore';
+import { useMasterDataStore } from '@/store/masterDataStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import type { Frame } from '@/types';
 
@@ -17,12 +18,19 @@ interface QuickRecordModalProps {
 
 export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecordModalProps) {
     const carryOverExposure = useSettingsStore((s) => s.carryOverExposure);
-    const halfStopAperture = useSettingsStore((s) => s.halfStopAperture);
+    const settingsApertureStop = useSettingsStore((s) => s.apertureStop);
+    const lenses = useMasterDataStore((s) => s.lenses);
+    const currentLensId = useRollStore(
+        (s) => s.rolls.find((r) => r.id === rollId)?.currentLensId,
+    );
     const lastFrame = useRollStore((s) => {
         const roll = s.rolls.find((r) => r.id === rollId);
         const frames = roll?.frames;
         return frames ? (frames[frames.length - 1] ?? null) : null;
     });
+
+    const lens = lenses.find((l) => l.id === currentLensId);
+    const apertureStop = lens?.apertureStop ?? settingsApertureStop;
 
     const [aperture, setAperture] = useState(() =>
         carryOverExposure ? (lastFrame?.aperture ?? '') : '',
@@ -48,7 +56,7 @@ export function QuickRecordModal({ rollId, isOpen, onClose, onSave }: QuickRecor
                     label="조리개"
                     value={aperture}
                     onChange={(e) => setAperture(e.target.value)}
-                    options={getApertureOptions(halfStopAperture, aperture)}
+                    options={getApertureOptions(apertureStop, lens?.maxAperture, aperture)}
                     placeholder="조리개 선택..."
                 />
                 <Select

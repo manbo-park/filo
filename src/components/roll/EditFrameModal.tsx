@@ -26,7 +26,7 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
         useShallow((s) => ({ updateFrame: s.updateFrame, deleteFrame: s.deleteFrame })),
     );
     const lenses = useMasterDataStore((s) => s.lenses);
-    const halfStopAperture = useSettingsStore((s) => s.halfStopAperture);
+    const settingsApertureStop = useSettingsStore((s) => s.apertureStop);
     const prevFrameTimestamp = useRollStore((s) => {
         if (!frame) return null;
         const roll = s.rolls.find((r) => r.id === rollId);
@@ -44,6 +44,9 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
         frame?.timestamp ? toTimeStr(frame.timestamp) : '',
     );
     const { copied, copyError, fading, triggerCopied, triggerCopyError } = useClipboardToast();
+
+    const lens = lenses.find((l) => l.id === lensId);
+    const apertureStop = lens?.apertureStop ?? settingsApertureStop;
 
     const currentTs = tsDate && tsTime ? new Date(`${tsDate}T${tsTime}`).toISOString() : null;
     const tsError = !!(
@@ -108,7 +111,7 @@ export function EditFrameModal({ rollId, frame, onClose }: EditFrameModalProps) 
                         label="조리개"
                         value={aperture}
                         onChange={(e) => setAperture(e.target.value)}
-                        options={getApertureOptions(halfStopAperture, aperture)}
+                        options={getApertureOptions(apertureStop, lens?.maxAperture, aperture)}
                         placeholder="조리개 선택..."
                     />
                     <Select
